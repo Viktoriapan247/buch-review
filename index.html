@@ -240,18 +240,18 @@ img{ max-width:100%; display:block; }
 header.app{
   position:sticky; top:0; z-index:30;
   display:flex; align-items:center; justify-content:space-between; gap:12px;
-  padding:calc(14px + env(safe-area-inset-top)) 20px 12px; background:var(--nav-bg);
+  padding:calc(10px + env(safe-area-inset-top)) 20px 10px; background:var(--nav-bg);
   -webkit-backdrop-filter:blur(22px) saturate(1.6); backdrop-filter:blur(22px) saturate(1.6);
   border-bottom:1px solid var(--glass-border);
 }
-main{ flex:1; padding:4px 16px calc(96px + env(safe-area-inset-bottom)); }
+main{ flex:1; padding:14px 16px calc(96px + env(safe-area-inset-bottom)); }
 
 /* Sektions-Label */
 .slabel, h2.section, .eyebrow{
   font-size:12px; font-weight:600; letter-spacing:.2em; text-transform:uppercase;
   color:var(--muted); margin:26px 2px 12px;
 }
-.slabel:first-child, h2.section:first-child{ margin-top:14px; }
+.slabel:first-child, h2.section:first-child{ margin-top:2px; }
 
 /* ============ Bottom-Navigation ============ */
 nav.tabs{
@@ -882,7 +882,7 @@ function viewReading(){
   let intro = '';
   if(!state.settings.seenIntro){
     intro = `<div class="card intro">
-      <h2 class="section" style="margin-top:0">Willkommen bei Novelle</h2>
+      <h2 class="section" style="margin:0 0 10px">Willkommen bei Novelle</h2>
       <p class="hint" style="margin:0 0 10px">Dein persönliches Bücherregal: Lege Bücher an (auch nachträglich mit Lesejahr), verbinde Reihen, beantworte nach dem Beenden einen persönlichen Fragenkatalog und unterhalte dich spoilerfrei über dein Buch. Alles bleibt privat auf deinem Gerät – ganz ohne Konto.</p>
       <div class="row" style="flex-wrap:wrap">
         <button class="btn accent sm" data-action="add-book">Erstes Buch anlegen</button>
