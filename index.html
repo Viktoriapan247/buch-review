@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#EFE8F6">
 <!-- A:HEAD:START -->
-<title>Eselsohr</title>
+<title>Chapter</title>
 <style>
 /* ============ Tokens: Licht (Basis) ============ */
 :root{
@@ -36,6 +36,7 @@
   --danger:#C03B52;
   --shadow:0 2px 6px rgba(60,20,80,.06), 0 14px 38px rgba(60,20,80,.12);
   --glow:0 6px 22px rgba(255,79,163,.35);
+  --hilite:rgba(255,255,255,.65);
   --nav-bg:rgba(247,242,250,.62);
   --toast-bg:rgba(30,19,44,.92); --toast-ink:#FFF6FB;
 }
@@ -66,6 +67,7 @@
     --danger:#FF8296;
     --shadow:0 2px 6px rgba(0,0,0,.35), 0 14px 38px rgba(0,0,0,.4);
     --glow:0 6px 22px rgba(255,79,163,.3);
+    --hilite:rgba(255,255,255,.14);
     --nav-bg:rgba(20,14,29,.6);
     --toast-bg:rgba(245,239,250,.95); --toast-ink:#231631;
   }
@@ -96,6 +98,7 @@
   --danger:#FF8296;
   --shadow:0 2px 6px rgba(0,0,0,.35), 0 14px 38px rgba(0,0,0,.4);
   --glow:0 6px 22px rgba(255,79,163,.3);
+  --hilite:rgba(255,255,255,.14);
   --nav-bg:rgba(20,14,29,.6);
   --toast-bg:rgba(245,239,250,.95); --toast-ink:#231631;
 }
@@ -180,15 +183,20 @@ hr.sep{ border:0; border-top:1px solid var(--line); margin:16px 0; }
 
 .btn{
   appearance:none; border:1px solid var(--glass-border); background:var(--surface);
-  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+  box-shadow:inset 0 1px 0 var(--hilite);
+  -webkit-backdrop-filter:blur(14px) saturate(1.4); backdrop-filter:blur(14px) saturate(1.4);
   border-radius:999px; padding:11px 18px; font-weight:600; font-size:15px; cursor:pointer;
   min-height:46px; display:inline-flex; align-items:center; justify-content:center; gap:8px;
   color:var(--ink);
 }
 .btn.primary, .btn.accent{
-  background:var(--grad); color:var(--on-grad); border:0; box-shadow:var(--glow); font-weight:700;
+  background:var(--grad-soft), var(--surface);
+  -webkit-backdrop-filter:blur(18px) saturate(1.7); backdrop-filter:blur(18px) saturate(1.7);
+  color:var(--ink); border:1px solid var(--glass-border);
+  box-shadow:inset 0 1px 0 var(--hilite), 0 4px 16px rgba(60,20,80,.12);
+  font-weight:700;
 }
-.btn.ghost{ background:transparent; border-color:transparent; -webkit-backdrop-filter:none; backdrop-filter:none; }
+.btn.ghost{ background:transparent; border-color:transparent; box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; }
 .btn.sm{ padding:8px 14px; min-height:44px; font-size:13.5px; }
 .btn.danger{ color:var(--danger); border-color:color-mix(in srgb, var(--danger) 40%, transparent); }
 .btn:disabled{ opacity:.55; cursor:default; box-shadow:none; }
@@ -297,7 +305,8 @@ textarea.f{ min-height:96px; resize:vertical; }
 .sheet .sbody .inner, .sheet .shead{ max-width:540px; margin:0 auto; width:100%; }
 .iconbtn{
   appearance:none; border:1px solid var(--glass-border); background:var(--surface); border-radius:999px;
-  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+  box-shadow:inset 0 1px 0 var(--hilite);
+  -webkit-backdrop-filter:blur(12px) saturate(1.4); backdrop-filter:blur(12px) saturate(1.4);
   width:44px; height:44px; min-width:44px; display:flex; align-items:center; justify-content:center; cursor:pointer;
   color:var(--ink);
 }
@@ -323,7 +332,10 @@ textarea.f{ min-height:96px; resize:vertical; }
 /* Chat */
 .chatlog{ display:flex; flex-direction:column; gap:10px; padding-bottom:8px; }
 .msg{ max-width:82%; padding:11px 15px; border-radius:20px; font-size:15px; line-height:1.5; white-space:pre-wrap; overflow-wrap:break-word; }
-.msg.user{ align-self:flex-end; background:var(--grad); color:var(--on-grad); border-bottom-right-radius:7px; box-shadow:var(--glow); }
+.msg.user{ align-self:flex-end; background:var(--grad-soft), var(--surface); color:var(--ink);
+  border:1px solid var(--glass-border); box-shadow:inset 0 1px 0 var(--hilite);
+  -webkit-backdrop-filter:blur(14px) saturate(1.5); backdrop-filter:blur(14px) saturate(1.5);
+  border-bottom-right-radius:7px; }
 .msg.bot{ align-self:flex-start; background:var(--surface); border:1px solid var(--glass-border);
   -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border-bottom-left-radius:7px; }
 .msg.bot.thinking{ color:var(--muted); font-style:italic }
@@ -369,8 +381,11 @@ textarea.f{ min-height:96px; resize:vertical; }
 /* FAB */
 .fab{
   position:fixed; right:calc(50% - 270px + 16px); bottom:calc(86px + env(safe-area-inset-bottom)); z-index:35;
-  width:58px; height:58px; border-radius:999px; border:0; cursor:pointer;
-  background:var(--grad); color:var(--on-grad); box-shadow:var(--glow);
+  width:58px; height:58px; border-radius:999px; cursor:pointer;
+  background:var(--grad-soft), var(--surface); color:var(--rose-text);
+  border:1px solid var(--glass-border);
+  -webkit-backdrop-filter:blur(18px) saturate(1.7); backdrop-filter:blur(18px) saturate(1.7);
+  box-shadow:inset 0 1px 0 var(--hilite), 0 6px 20px rgba(60,20,80,.16);
   display:flex; align-items:center; justify-content:center;
 }
 @media (max-width:571px){ .fab{ right:16px; } }
@@ -407,7 +422,7 @@ a{ color:var(--rose-text); font-weight:600; }
 <div id="app">
   <header class="app">
     <div>
-      <h1 id="apptitle">Eselsohr</h1>
+      <h1 id="apptitle">Chapter</h1>
       <div class="sub" id="appsub">Dein Bücherregal</div>
     </div>
     <button class="iconbtn" data-action="add-book" aria-label="Buch hinzufügen" title="Buch hinzufügen">
@@ -448,7 +463,7 @@ a{ color:var(--rose-text); font-weight:600; }
 <script>
 'use strict';
 /* =====================================================================
-   Eselsohr – dein digitales Bücherregal
+   Chapter – dein digitales Bücherregal
    Daten bleiben lokal auf dem Gerät (localStorage). Optional lässt sich
    ein Claude-API-Schlüssel hinterlegen, der Chat, Fragenkatalog, Fakten
    und Empfehlungen mit echter KI betreibt (außerhalb der Artifact-
@@ -579,7 +594,7 @@ async function aiCall(messages, system, maxTokens=1200){
   return (data.content||[]).map(c => c.text || '').join('');
 }
 function aiBlockedHint(){
-  return 'Die KI-Verbindung hat nicht geklappt. In der geschützten Artifact-Ansicht sind externe Verbindungen gesperrt – dort arbeitet Eselsohr im lokalen Begleiter-Modus. Als eigenständig installierte App (siehe README) funktioniert die KI mit deinem API-Schlüssel.';
+  return 'Die KI-Verbindung hat nicht geklappt. In der geschützten Artifact-Ansicht sind externe Verbindungen gesperrt – dort arbeitet Chapter im lokalen Begleiter-Modus. Als eigenständig installierte App (siehe README) funktioniert die KI mit deinem API-Schlüssel.';
 }
 /* Sehr kleine Markdown-Aufbereitung für KI-Antworten */
 function md(t){
@@ -711,7 +726,7 @@ function companionReply(b, userText){
    Rendering: Tabs
    ===================================================================== */
 const TABTITLES = {
-  reading:['Eselsohr','Was du gerade liest'],
+  reading:['Chapter','Was du gerade liest'],
   shelf:['Bücherregal','Alles, was du gelesen hast'],
   discover:['Entdecken','Wunschliste & Empfehlungen'],
   more:['Mehr','Statistik & Einstellungen'],
@@ -735,7 +750,7 @@ function viewReading(){
   let intro = '';
   if(!state.settings.seenIntro){
     intro = `<div class="card intro">
-      <h2 class="section" style="margin-top:0">Willkommen bei Eselsohr 🔖</h2>
+      <h2 class="section" style="margin-top:0">Willkommen bei Chapter 🔖</h2>
       <p class="hint" style="margin:0 0 10px">Dein persönliches Bücherregal: Lege Bücher an (auch nachträglich mit Lesejahr), verbinde Reihen, beantworte nach dem Beenden einen persönlichen Fragenkatalog und unterhalte dich spoilerfrei über dein Buch. Alles bleibt privat auf deinem Gerät – ganz ohne Konto.</p>
       <div class="row" style="flex-wrap:wrap">
         <button class="btn accent sm" data-action="add-book">Erstes Buch anlegen</button>
@@ -910,10 +925,10 @@ function viewDiscover(){
   <h2 class="section">Empfehlungen für dich</h2>
   <div class="card">
     ${finished.length||state.books.some(b=>b.status==='reading') ? `
-      <p class="hint" style="margin:0 0 10px">${topGenres.length?`Du liest gern <strong>${topGenres.map(esc).join(', ')}</strong>. `:''}Eselsohr schlägt dir passende Bücher vor – auf Basis deines Regals und deiner aktuellen Lektüre.</p>
+      <p class="hint" style="margin:0 0 10px">${topGenres.length?`Du liest gern <strong>${topGenres.map(esc).join(', ')}</strong>. `:''}Chapter schlägt dir passende Bücher vor – auf Basis deines Regals und deiner aktuellen Lektüre.</p>
       <button class="btn primary block" data-action="gen-recs" id="recbtn">✨ Empfehlungen erstellen</button>
-      ${!aiAvailable()?`<p class="hint small" style="margin:10px 0 0">Dafür braucht Eselsohr die KI-Verbindung (Einstellungen → KI). Ohne sie kannst du deine Wunschliste natürlich trotzdem pflegen.</p>`:''}
-    ` : `<p class="hint" style="margin:0">Sobald ein paar Bücher in deinem Regal stehen, kann Eselsohr einschätzen, was zu dir passt.</p>`}
+      ${!aiAvailable()?`<p class="hint small" style="margin:10px 0 0">Dafür braucht Chapter die KI-Verbindung (Einstellungen → KI). Ohne sie kannst du deine Wunschliste natürlich trotzdem pflegen.</p>`:''}
+    ` : `<p class="hint" style="margin:0">Sobald ein paar Bücher in deinem Regal stehen, kann Chapter einschätzen, was zu dir passt.</p>`}
   </div>
   ${recsHTML}`;
 }
@@ -977,7 +992,7 @@ function viewMore(){
 
   <h2 class="section">KI-Verbindung</h2>
   <div class="card" style="margin-bottom:14px">
-    <p class="hint small" style="margin:0 0 10px">Mit einem Claude-API-Schlüssel werden Buch-Chat, Fragenkatalog, 10 Fakten, Community-Stimmen und Empfehlungen von echter KI erstellt. Ohne Schlüssel arbeitet Eselsohr im lokalen Begleiter-Modus. Der Schlüssel bleibt nur auf deinem Gerät.</p>
+    <p class="hint small" style="margin:0 0 10px">Mit einem Claude-API-Schlüssel werden Buch-Chat, Fragenkatalog, 10 Fakten, Community-Stimmen und Empfehlungen von echter KI erstellt. Ohne Schlüssel arbeitet Chapter im lokalen Begleiter-Modus. Der Schlüssel bleibt nur auf deinem Gerät.</p>
     <label class="f"><span class="lab">API-Schlüssel</span>
       <input class="f" id="set-key" type="password" placeholder="sk-ant-…" value="${esc(s.apiKey||'')}" autocomplete="off">
     </label>
@@ -1001,9 +1016,9 @@ function viewMore(){
     </div>
   </div>
 
-  <h2 class="section">Über Eselsohr</h2>
+  <h2 class="section">Über Chapter</h2>
   <div class="card">
-    <p class="hint small" style="margin:0">Eselsohr ist deine private Lese-App – ohne Konto, ohne Tracking. Ein optionales Konto mit Synchronisierung über mehrere Geräte ist für die Zukunft vorgemerkt; die App ist dafür vorbereitet (Export/Import als Brücke). Version 1.0</p>
+    <p class="hint small" style="margin:0">Chapter ist deine private Lese-App – ohne Konto, ohne Tracking. Ein optionales Konto mit Synchronisierung über mehrere Geräte ist für die Zukunft vorgemerkt; die App ist dafür vorbereitet (Export/Import als Brücke). Version 1.0</p>
   </div>`;
 }
 function bindMore(){
@@ -1016,14 +1031,14 @@ function bindMore(){
         const data = JSON.parse(r.result);
         if(!data || !Array.isArray(data.books)) throw new Error('format');
         state = data; save(); renderApp(); toast(`Backup geladen: ${data.books.length} Bücher 📚`);
-      }catch(e){ toast('Das ist kein gültiges Eselsohr-Backup.'); }
+      }catch(e){ toast('Das ist kein gültiges Chapter-Backup.'); }
     };
     r.readAsText(file);
   });
 }
 async function exportBackup(){
   const data = JSON.stringify(state, null, 2);
-  const filename = 'eselsohr-backup-'+todayISO()+'.json';
+  const filename = 'chapter-backup-'+todayISO()+'.json';
   try{
     if(window.claude && typeof window.claude.use === 'function'){
       const dl = await window.claude.use('downloads');
@@ -1079,9 +1094,10 @@ function openBookForm(book, preset){
       <div class="row" style="align-items:flex-start">
         <div style="width:96px">
           <div id="coverpreview">${coverHTML(b)}</div>
-          <label class="btn sm block" style="margin-top:8px;cursor:pointer">Cover
+          <label class="btn sm block" style="margin-top:8px;cursor:pointer">📷 Cover
             <input id="coverinput" type="file" accept="image/*" style="display:none">
           </label>
+          <span class="hint" style="font-size:11px;display:block;text-align:center;margin-top:4px">aus deiner Fotogalerie</span>
         </div>
         <div class="grow">
           <label class="f"><span class="lab">Titel *</span><input class="f" name="title" required value="${esc(b.title||'')}" placeholder="z. B. Die Mitternachtsbibliothek"></label>
@@ -1106,7 +1122,7 @@ function openBookForm(book, preset){
           </select>
           ${aiAvailable()?`<button type="button" class="btn sm" data-action="suggest-genre" title="Genre von der KI einschätzen lassen">✨</button>`:''}
         </div>
-        ${!aiAvailable()?'<span class="hint small">Mit KI-Verbindung (unter „Mehr“) schätzt Eselsohr das Genre automatisch ein.</span>':''}
+        ${!aiAvailable()?'<span class="hint small">Mit KI-Verbindung (unter „Mehr“) schätzt Chapter das Genre automatisch ein.</span>':''}
       </label>
       <div class="f2" style="margin-bottom:0">
         <label class="f" style="margin-bottom:0"><span class="lab">Reihe (optional)</span>
@@ -1439,21 +1455,21 @@ async function genCommunity(id){
 }
 function localFactsFallback(b){
   const q = encodeURIComponent(`${b.title} ${b.author||''}`.trim());
-  return `Ohne KI-Verbindung kann Eselsohr keine Fakten erzeugen – aber hier sind gute Startpunkte für „${b.title}“:
+  return `Ohne KI-Verbindung kann Chapter keine Fakten erzeugen – aber hier sind gute Startpunkte für „${b.title}“:
 
 1. Wikipedia-Suche: https://de.wikipedia.org/w/index.php?search=${q}
 2. Perlentaucher (Rezensionen): https://www.perlentaucher.de/suche.html?q=${q}
 
-Sobald du unter „Mehr → KI-Verbindung“ einen Schlüssel hinterlegst (und die App außerhalb der geschützten Vorschau nutzt), erstellt dir Eselsohr hier 10 persönliche Fakten zu Buch und Autor·in.`;
+Sobald du unter „Mehr → KI-Verbindung“ einen Schlüssel hinterlegst (und die App außerhalb der geschützten Vorschau nutzt), erstellt dir Chapter hier 10 persönliche Fakten zu Buch und Autor·in.`;
 }
 function localCommunityFallback(b){
   const q = encodeURIComponent(`${b.title} ${b.author||''}`.trim());
-  return `Ohne KI-Verbindung zeigt Eselsohr hier keine Zusammenfassung der Community-Stimmen. Wo Leserinnen und Leser über „${b.title}“ diskutieren:
+  return `Ohne KI-Verbindung zeigt Chapter hier keine Zusammenfassung der Community-Stimmen. Wo Leserinnen und Leser über „${b.title}“ diskutieren:
 
 - Goodreads: https://www.goodreads.com/search?q=${q}
 - LovelyBooks: https://www.lovelybooks.de/suche/?keyword=${q}
 
-Mit KI-Verbindung fasst Eselsohr die spannendsten Lesermeinungen und Deutungen direkt hier für dich zusammen.`;
+Mit KI-Verbindung fasst Chapter die spannendsten Lesermeinungen und Deutungen direkt hier für dich zusammen.`;
 }
 function openTextSheet(title, text, isFallback=false, loading=false){
   return openOverlay(title, `<div class="card aitext">${loading?'<p class="hint">Einen Moment – wird für dich zusammengestellt… ✨</p>':md(text)}</div>${isFallback?'':''}`);
@@ -1499,7 +1515,7 @@ function openChat(id){
     let reply;
     if(aiAvailable()){
       try{
-        const sys = `Du bist ein herzlicher, belesener Lesebegleiter in der Bücher-App Eselsohr. Die Nutzerin liest gerade "${b.title}"${b.author?` von ${b.author}`:''}${b.genre?` (${b.genre})`:''}${b.status==='finished'?' und hat es bereits BEENDET – ihr dürft über das ganze Buch sprechen':''}.
+        const sys = `Du bist ein herzlicher, belesener Lesebegleiter in der Bücher-App Chapter. Die Nutzerin liest gerade "${b.title}"${b.author?` von ${b.author}`:''}${b.genre?` (${b.genre})`:''}${b.status==='finished'?' und hat es bereits BEENDET – ihr dürft über das ganze Buch sprechen':''}.
 ${b.status!=='finished'?`WICHTIG – SPOILERSCHUTZ: Sie ist erst bei ${boundaryLabel(b)}. Sprich ausschließlich über Inhalte bis zu dieser Stelle. Verrate NICHTS, was danach passiert – auch nicht andeutungsweise und auch nicht auf direkte Nachfrage. Biete stattdessen an, gemeinsam spoilerfrei zu spekulieren.`:''}
 Antworte auf Deutsch, warm und prägnant (höchstens ~120 Wörter), stelle gern eine Rückfrage. Wenn du das Buch nicht sicher kennst, sage das ehrlich und arbeite mit dem, was die Nutzerin erzählt.`;
         const msgs = b.chat.slice(-24).map(m=>({role: m.role==='user'?'user':'assistant', content:m.content}));

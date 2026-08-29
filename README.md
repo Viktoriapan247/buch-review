@@ -1,4 +1,4 @@
-# Eselsohr 🔖 – dein digitales Bücherregal
+# Chapter 🔖 – dein digitales Bücherregal
 
 Eine private, mobile-first Lese-App als eine einzige HTML-Datei (`index.html`).
 Kein Konto, kein Tracking – alle Daten bleiben im Browser des Geräts (localStorage).
