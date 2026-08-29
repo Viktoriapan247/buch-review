@@ -1,0 +1,257 @@
+<title>Novelle Brandbook</title>
+<style>
+:root{
+  color-scheme: light dark;
+  --bg:#EFE8F6;
+  --aura:
+    radial-gradient(60% 40% at 14% 4%,  rgba(255,168,84,.5), transparent 72%),
+    radial-gradient(55% 40% at 90% 14%, rgba(255,214,120,.4), transparent 72%),
+    radial-gradient(70% 50% at 50% 50%, rgba(255,79,163,.22), transparent 74%),
+    radial-gradient(80% 55% at 88% 98%, rgba(143,91,222,.34), transparent 76%);
+  --surface:rgba(255,255,255,.7);
+  --glass-border:rgba(255,255,255,.75);
+  --hilite:rgba(255,255,255,.65);
+  --ink:#231631; --muted:#6A5C7D; --line:rgba(35,22,49,.12);
+  --rose-text:#C22571; --lilac-text:#6C3FBF;
+  --title-grad:linear-gradient(100deg,#FF4FA3 0%,#FF8A4C 55%,#8E5BD9 120%);
+  --code-bg:rgba(35,22,49,.06);
+  --shadow:0 2px 6px rgba(60,20,80,.06), 0 14px 38px rgba(60,20,80,.12);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#140E1D;
+    --aura:
+      radial-gradient(60% 40% at 14% 4%,  rgba(255,138,76,.26), transparent 72%),
+      radial-gradient(55% 40% at 90% 14%, rgba(255,196,107,.16), transparent 72%),
+      radial-gradient(70% 50% at 50% 50%, rgba(255,79,163,.18), transparent 74%),
+      radial-gradient(80% 55% at 88% 98%, rgba(143,91,222,.26), transparent 76%);
+    --surface:rgba(40,28,56,.58);
+    --glass-border:rgba(255,255,255,.14);
+    --hilite:rgba(255,255,255,.13);
+    --ink:#F5EFFA; --muted:#B4A6C6; --line:rgba(255,255,255,.14);
+    --rose-text:#FF93C7; --lilac-text:#C9AEF5;
+    --title-grad:linear-gradient(100deg,#FF6FB5 0%,#FFA470 55%,#B08FE8 120%);
+    --code-bg:rgba(255,255,255,.08);
+    --shadow:0 2px 6px rgba(0,0,0,.35), 0 14px 38px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#140E1D;
+  --aura:
+    radial-gradient(60% 40% at 14% 4%,  rgba(255,138,76,.26), transparent 72%),
+    radial-gradient(55% 40% at 90% 14%, rgba(255,196,107,.16), transparent 72%),
+    radial-gradient(70% 50% at 50% 50%, rgba(255,79,163,.18), transparent 74%),
+    radial-gradient(80% 55% at 88% 98%, rgba(143,91,222,.26), transparent 76%);
+  --surface:rgba(40,28,56,.58);
+  --glass-border:rgba(255,255,255,.14);
+  --hilite:rgba(255,255,255,.13);
+  --ink:#F5EFFA; --muted:#B4A6C6; --line:rgba(255,255,255,.14);
+  --rose-text:#FF93C7; --lilac-text:#C9AEF5;
+  --title-grad:linear-gradient(100deg,#FF6FB5 0%,#FFA470 55%,#B08FE8 120%);
+  --code-bg:rgba(255,255,255,.08);
+  --shadow:0 2px 6px rgba(0,0,0,.35), 0 14px 38px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size:16px; line-height:1.55; min-height:100dvh;
+}
+body::before{ content:''; position:fixed; inset:0; z-index:0; pointer-events:none; background:var(--aura); }
+.page{ position:relative; z-index:1; max-width:760px; margin:0 auto; padding:40px 20px 80px; }
+h1{
+  font-size:clamp(30px,6vw,40px); font-weight:800; letter-spacing:-0.03em; margin:6px 0 4px; text-wrap:balance;
+  background:var(--title-grad); -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent; color:var(--rose-text);
+}
+.lede{ color:var(--muted); font-size:16px; max-width:56ch; margin:0 0 28px; }
+h2{ font-size:21px; font-weight:800; letter-spacing:-0.02em; margin:36px 0 12px; text-wrap:balance; }
+h3{ font-size:15px; font-weight:700; margin:18px 0 8px; }
+p{ margin:0 0 12px; max-width:66ch; }
+.eyebrow{ font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:0 0 2px; }
+.card{
+  background:var(--surface); border:1px solid var(--glass-border); border-radius:22px;
+  -webkit-backdrop-filter:blur(20px) saturate(1.5); backdrop-filter:blur(20px) saturate(1.5);
+  box-shadow:var(--shadow); padding:20px; margin-bottom:14px;
+}
+.muted{ color:var(--muted); font-size:14px; }
+table{ border-collapse:collapse; width:100%; font-size:14px; }
+th,td{ text-align:left; padding:8px 10px 8px 0; border-bottom:1px solid var(--line); vertical-align:top; }
+th{ font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+td code, p code, li code{
+  background:var(--code-bg); padding:2px 7px; border-radius:7px;
+  font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12.5px;
+  white-space:nowrap;
+}
+.tablewrap{ overflow-x:auto; }
+.sw{ display:inline-block; width:20px; height:20px; border-radius:6px; vertical-align:-5px; margin-right:8px;
+  border:1px solid var(--line); }
+.swatchrow{ display:flex; flex-wrap:wrap; gap:10px; margin:10px 0 4px; }
+.swatch{ flex:1; min-width:110px; border-radius:14px; padding:12px; color:#fff;
+  font-size:12px; font-weight:700; text-shadow:0 1px 3px rgba(0,0,0,.3); }
+.swatch small{ display:block; font-weight:500; opacity:.9; font-family:ui-monospace,Menlo,monospace; }
+.gradbar{ height:44px; border-radius:12px; margin:8px 0 4px; }
+.logogrid{ display:flex; gap:22px; align-items:center; flex-wrap:wrap; }
+.logogrid figure{ margin:0; text-align:center; }
+.logogrid figcaption{ font-size:12px; color:var(--muted); margin-top:8px; }
+pre.prompt{
+  background:var(--code-bg); border:1px solid var(--line); border-radius:14px;
+  padding:16px; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size:13px; line-height:1.6; white-space:pre-wrap; overflow-x:auto; margin:8px 0 4px;
+}
+ul,ol{ padding-left:22px; margin:0 0 12px; } li{ margin-bottom:6px; }
+.pill{ display:inline-block; font-size:12px; font-weight:700; padding:4px 12px; border-radius:999px;
+  background:var(--surface); border:1px solid var(--glass-border); color:var(--muted); margin:0 6px 6px 0; }
+.glassdemo{
+  display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:11px 20px;
+  border-radius:999px; font-weight:700; border:1px solid var(--glass-border);
+  background:linear-gradient(135deg,rgba(255,79,163,.14),rgba(255,138,76,.14)), var(--surface);
+  box-shadow:inset 0 1px 0 var(--hilite), 0 4px 16px rgba(60,20,80,.12);
+  -webkit-backdrop-filter:blur(18px) saturate(1.7); backdrop-filter:blur(18px) saturate(1.7);
+}
+</style>
+
+<div class="page">
+  <p class="eyebrow">Corporate-Design-Übergabe · Stand 29.08.2026 · v1.4</p>
+  <h1>Novelle Brandbook</h1>
+  <p class="lede">Alles, was du brauchst, um in Claude Design (oder jedem anderen Tool) ein App-Logo und weitere Assets zu gestalten, die exakt zur App passen. Am Ende steht ein fertiger Prompt zum Kopieren.</p>
+
+  <h2>1 · Die Marke in einem Absatz</h2>
+  <div class="card">
+    <p><strong>Novelle</strong> ist ein privates, digitales Bücherregal als Mobile-App: Bücher einpflegen (auch rückwirkend mit Lesejahr), Reihen verbinden, nach dem Beenden einen persönlichen Fragenkatalog beantworten und sich spoilerfrei über das aktuelle Buch unterhalten. Charakter: <strong>feminin, modern, ruhig, persönlich</strong> — wie eine schöne Apple-App, nicht wie ein soziales Netzwerk. Ton der Texte: warm, Du-Form, unaufgeregt.</p>
+  </div>
+
+  <h2>2 · Aktuelles Logo (Referenz &amp; Ausgangspunkt)</h2>
+  <div class="card">
+    <div class="logogrid">
+      <figure>
+        <svg width="96" height="96" viewBox="0 0 64 64" aria-label="Novelle Logo, Farbwelt Aura">
+          <defs><linearGradient id="ga" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#FF4FA3"/><stop offset=".55" stop-color="#FF8A4C"/><stop offset="1" stop-color="#8E5BD9"/>
+          </linearGradient></defs>
+          <rect x="3" y="3" width="58" height="58" rx="17" fill="url(#ga)"/>
+          <path d="M32 23 C27 18.5 18.5 17.5 13.5 20.5 V43.5 C18.5 40.5 27 41.5 32 46 Z" fill="#fff" opacity=".95"/>
+          <path d="M32 23 C37 18.5 45.5 17.5 50.5 20.5 V43.5 C45.5 40.5 37 41.5 32 46 Z" fill="#fff" opacity=".76"/>
+          <path d="M46.5 8.5 l1.9 3.8 3.8 1.9 -3.8 1.9 -1.9 3.8 -1.9 -3.8 -3.8 -1.9 3.8 -1.9 z" fill="#fff" opacity=".92"/>
+        </svg>
+        <figcaption>Farbwelt „Aura“</figcaption>
+      </figure>
+      <figure>
+        <svg width="96" height="96" viewBox="0 0 64 64" aria-label="Novelle Logo, Farbwelt Nacht">
+          <defs><linearGradient id="gn" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#0E1B33"/><stop offset=".55" stop-color="#24457E"/><stop offset="1" stop-color="#3E6BD6"/>
+          </linearGradient></defs>
+          <rect x="3" y="3" width="58" height="58" rx="17" fill="url(#gn)"/>
+          <path d="M32 23 C27 18.5 18.5 17.5 13.5 20.5 V43.5 C18.5 40.5 27 41.5 32 46 Z" fill="#fff" opacity=".95"/>
+          <path d="M32 23 C37 18.5 45.5 17.5 50.5 20.5 V43.5 C45.5 40.5 37 41.5 32 46 Z" fill="#fff" opacity=".76"/>
+          <path d="M46.5 8.5 l1.9 3.8 3.8 1.9 -3.8 1.9 -1.9 3.8 -1.9 -3.8 -3.8 -1.9 3.8 -1.9 z" fill="#fff" opacity=".92"/>
+        </svg>
+        <figcaption>Farbwelt „Nacht“</figcaption>
+      </figure>
+      <div style="flex:1;min-width:220px">
+        <p class="muted" style="margin:0">Konzept: abgerundetes App-Icon (Squircle, Eckenradius ≈ 26 % der Kantenlänge) mit diagonalem Markenverlauf, darauf ein weißes, weiches Motiv (aufgeschlagenes Buch + Funkel). Das neue Logo darf dieses Konzept ersetzen — es sollte aber in <strong>beiden Farbwelten</strong> funktionieren (idealerweise: weißes/einfarbiges Motiv auf Verlaufsfläche).</p>
+      </div>
+    </div>
+  </div>
+
+  <h2>3 · Farbwelt „Aura“ (Standard · feminin)</h2>
+  <div class="card">
+    <h3 style="margin-top:0">Markenverlauf</h3>
+    <div class="gradbar" style="background:linear-gradient(135deg,#FF4FA3,#FF8A4C)"></div>
+    <p class="muted">Primär-Gradient: <code>135° · #FF4FA3 → #FF8A4C</code> &nbsp;·&nbsp; Titel/Logo-Gradient: <code>100° · #FF4FA3 → #FF8A4C → #8E5BD9</code></p>
+    <h3>Akzentfarben</h3>
+    <div class="swatchrow">
+      <div class="swatch" style="background:#FF4FA3">Pink<small>#FF4FA3</small></div>
+      <div class="swatch" style="background:#FF8A4C">Orange<small>#FF8A4C</small></div>
+      <div class="swatch" style="background:#8E5BD9">Lila<small>#8E5BD9</small></div>
+      <div class="swatch" style="background:#F2A93B">Gelb<small>#F2A93B</small></div>
+    </div>
+    <h3>Grundtöne</h3>
+    <div class="tablewrap"><table>
+      <tr><th>Rolle</th><th>Hell</th><th>Dunkel</th></tr>
+      <tr><td>Hintergrund (Basis unter Aura-Verläufen)</td><td><span class="sw" style="background:#EFE8F6"></span><code>#EFE8F6</code></td><td><span class="sw" style="background:#140E1D"></span><code>#140E1D</code></td></tr>
+      <tr><td>Text (Ink)</td><td><span class="sw" style="background:#231631"></span><code>#231631</code></td><td><span class="sw" style="background:#F5EFFA"></span><code>#F5EFFA</code></td></tr>
+      <tr><td>Sekundärtext</td><td><span class="sw" style="background:#6A5C7D"></span><code>#6A5C7D</code></td><td><span class="sw" style="background:#B4A6C6"></span><code>#B4A6C6</code></td></tr>
+      <tr><td>Glasfläche</td><td><code>rgba(255,255,255,.68)</code></td><td><code>rgba(40,28,56,.58)</code></td></tr>
+    </table></div>
+    <h3>Aura-Hintergrund</h3>
+    <p class="muted" style="margin-bottom:0">Weiche Radial-Verläufe der Akzentfarben (Deckkraft hell ≈ 30–60 %, dunkel ≈ 15–30 %) auf der Basisfarbe — wie ein „Aura“-Wallpaper. Diese Seite hier nutzt genau dieses Rezept.</p>
+  </div>
+
+  <h2>4 · Farbwelt „Nacht“ (maskulin · Schwarz &amp; Navy)</h2>
+  <div class="card">
+    <h3 style="margin-top:0">Markenverlauf</h3>
+    <div class="gradbar" style="background:linear-gradient(135deg,#0E1B33,#24457E 55%,#3E6BD6)"></div>
+    <p class="muted">Primär-Gradient: <code>135° · #0E1B33 → #24457E → #3E6BD6</code></p>
+    <h3>Akzentfarben</h3>
+    <div class="swatchrow">
+      <div class="swatch" style="background:#0E1B33">Schwarzblau<small>#0E1B33</small></div>
+      <div class="swatch" style="background:#24457E">Navy<small>#24457E</small></div>
+      <div class="swatch" style="background:#3E6BD6">Blau<small>#3E6BD6</small></div>
+      <div class="swatch" style="background:#7FA6E8;color:#131C30;text-shadow:none">Eisblau<small>#7FA6E8</small></div>
+    </div>
+    <h3>Grundtöne</h3>
+    <div class="tablewrap"><table>
+      <tr><th>Rolle</th><th>Hell</th><th>Dunkel</th></tr>
+      <tr><td>Hintergrund</td><td><span class="sw" style="background:#E8ECF3"></span><code>#E8ECF3</code></td><td><span class="sw" style="background:#070A12"></span><code>#070A12</code></td></tr>
+      <tr><td>Text (Ink)</td><td><span class="sw" style="background:#131C30"></span><code>#131C30</code></td><td><span class="sw" style="background:#EDF2FA"></span><code>#EDF2FA</code></td></tr>
+      <tr><td>Sekundärtext</td><td><span class="sw" style="background:#566175"></span><code>#566175</code></td><td><span class="sw" style="background:#93A1BC"></span><code>#93A1BC</code></td></tr>
+      <tr><td>Glasfläche</td><td><code>rgba(255,255,255,.66)</code></td><td><code>rgba(22,32,54,.58)</code></td></tr>
+    </table></div>
+  </div>
+
+  <h2>5 · Typografie</h2>
+  <div class="card">
+    <p style="margin-top:0">System-Schrift von Apple — <strong>SF Pro / Helvetica Neue</strong> (Fallback: Helvetica, Arial). Keine Serifen, keine Webfonts.</p>
+    <div class="tablewrap"><table>
+      <tr><th>Rolle</th><th>Größe</th><th>Gewicht / Stil</th></tr>
+      <tr><td>App-Titel</td><td>24 px</td><td>800 · Laufweite −0.03 em · Text im Marken-Gradient</td></tr>
+      <tr><td>Abschnitts-Titel</td><td>19–22 px</td><td>800 · Laufweite −0.02 em</td></tr>
+      <tr><td>Fließtext / Buttons</td><td>15–16 px</td><td>400 / 600–700</td></tr>
+      <tr><td>Chips &amp; Badges</td><td>12.5 px</td><td>600</td></tr>
+      <tr><td>Labels (Eyebrows)</td><td>11.5 px</td><td>700 · VERSALIEN · Laufweite +.07 em</td></tr>
+    </table></div>
+  </div>
+
+  <h2>6 · Material &amp; Form (Liquid Glass)</h2>
+  <div class="card">
+    <p style="margin-top:0">Alle Flächen und Bedienelemente sind durchscheinendes Glas — dezent, nie knallig: <span class="glassdemo">So sieht ein Button aus</span></p>
+    <ul>
+      <li><strong>Glas-Rezept:</strong> halbtransparente Fläche (s. Farbtabellen) + <code>backdrop-filter: blur(14–22px) saturate(1.4–1.7)</code> + 1 px Randlinie <code>rgba(255,255,255,.75)</code> hell / <code>.14</code> dunkel + innere Lichtkante oben (<code>inset 0 1px 0 rgba(255,255,255,.65 / .13)</code>)</li>
+      <li><strong>Farbtönung auf CTAs:</strong> Marken-Gradient mit nur 12–28 % Deckkraft über dem Glas — Farbe schimmert, schreit nicht</li>
+      <li><strong>Radien:</strong> Karten 22–24 px · Buttons/Chips Pille (999 px) · Cover &amp; Eingabefelder 14 px · App-Icon Squircle ≈ 26 %</li>
+      <li><strong>Icons:</strong> Linien-Icons, 1.9 px Strich, runde Enden, 24 px Raster (SF-Symbols-Stil)</li>
+      <li><strong>Nicht-Ziele:</strong> keine harten Schwarz-Schatten, keine gesättigten Vollflächen-Buttons, keine Serifen, kein Papier-/Beige-Look</li>
+    </ul>
+  </div>
+
+  <h2>7 · Anforderungen an das neue App-Logo</h2>
+  <div class="card">
+    <ol style="margin-top:0">
+      <li><strong>Format:</strong> quadratisch, ideal als <strong>SVG</strong> — sonst PNG mit mindestens <strong>1024 × 1024 px</strong></li>
+      <li><strong>Vollflächig</strong> gestalten (randlos, ohne eigene abgerundete Ecken oder Schatten) — die Squircle-Maskierung und Verwendung im Header übernehme ich beim Einpflegen</li>
+      <li><strong>Motiv einfach halten:</strong> muss bei 32 px im App-Header noch klar erkennbar sein; Safe-Zone ca. 12 % Rand ohne wichtige Details; <strong>keine Schrift</strong> im Icon</li>
+      <li><strong>Farbwelten:</strong> ideal ist ein helles/weißes Motiv auf Verlaufsgrund — dann liefere entweder zwei Varianten (Aura- und Nacht-Gradient, Abschnitte 3+4) oder eine Variante, deren Grund ich programmatisch umfärben kann (SVG)</li>
+      <li><strong>Stimmung:</strong> feminin, weich, modern; darf verspielt sein (Funkel, Herz, Lesezeichen, Seiten), aber clean — Apple-App, kein Sticker</li>
+    </ol>
+    <p class="muted" style="margin-bottom:0">Übergabe zurück an mich: einfach die Datei (SVG oder PNG) hier in den Chat schicken — ich pflege sie als Logo in Header und Brandbook ein und passe bei Bedarf die Farbwelt-Logik an.</p>
+  </div>
+
+  <h2>8 · Fertiger Prompt für Claude Design</h2>
+  <div class="card">
+    <p style="margin-top:0" class="muted">Zum Kopieren — gern anpassen, welches Motiv du willst:</p>
+    <pre class="prompt">Gestalte ein App-Icon für „Novelle“, eine private Bücherregal-App (feminin, modern, ruhig — Apple-App-Ästhetik).
+
+Format: Quadrat 1024×1024, vollflächig, ohne abgerundete Ecken, ohne Schatten, ohne Schrift.
+
+Hintergrund: diagonaler Farbverlauf 135° von Pink #FF4FA3 über Orange #FF8A4C nach Lila #8E5BD9, gern mit weichen „Aura“-Lichtflecken in Gelb #F2A93B.
+
+Motiv: ein einfaches, weiches, weißes Symbol rund ums Lesen (z. B. aufgeschlagenes Buch, Lesezeichen-Herz oder Seite mit Funkel) — zentriert, mit ca. 12 % Rand Abstand, bei 32 px noch klar erkennbar.
+
+Stil: minimalistisch, runde Formen, feine Lichtkanten wie Apples Liquid Glass, keine Kontur-Outlines, kein 3D, kein Sticker-Look.
+
+Erstelle zusätzlich eine zweite Variante mit demselben Motiv auf Navy-Verlauf: 135° von Schwarzblau #0E1B33 über Navy #24457E nach Blau #3E6BD6.</pre>
+  </div>
+
+  <p class="muted">Quelle: <code>index.html</code> im Repo <code>viktoriapan247/buch-review</code> (Branch <code>claude/digital-bookshelf-app-a1b7d1</code>) — dort liegen alle Design-Tokens im <code>&lt;style&gt;</code>-Block. Dieses Brandbook beschreibt Version 1.4.</p>
+</div>

@@ -458,6 +458,25 @@ textarea.f{ min-height:96px; resize:vertical; }
 .flowdots i{ height:4px; flex:1; border-radius:99px; background:var(--surface2); border:1px solid var(--glass-border); }
 .flowdots i.on{ background:var(--grad); border-color:transparent; }
 
+/* Farbwelt-Auswahl */
+.palpick{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:4px; }
+.palcard{ appearance:none; padding:0; text-align:left; cursor:pointer; border-radius:18px; overflow:hidden;
+  border:2px solid var(--glass-border); background:var(--surface); box-shadow:var(--shadow); }
+.palcard.active{ border-color:var(--rose); }
+.palcard .prev{ display:block; height:126px; padding:12px 12px 0; }
+.palcard .minihead{ display:flex; align-items:center; gap:6px; margin-bottom:9px; }
+.palcard .minihead i{ width:16px; height:16px; border-radius:5px; display:block; }
+.palcard .minihead b{ font-size:12px; font-weight:800; letter-spacing:-0.02em; }
+.palcard .minicard{ display:block; border-radius:12px; border:1px solid transparent; padding:9px 10px; }
+.palcard .minicard i{ display:block; border-radius:99px; }
+.palcard .minicard .l1{ height:7px; width:70%; margin-bottom:6px; }
+.palcard .minicard .l2{ height:7px; width:45%; margin-bottom:9px; }
+.palcard .minicard .bar{ height:5px; width:100%; }
+.palmeta{ display:flex; align-items:center; gap:7px; padding:10px 12px; }
+.palmeta strong{ font-size:14px; }
+.palmeta span{ font-size:11.5px; color:var(--muted); flex:1; }
+.palmeta em{ font-style:normal; font-weight:800; color:var(--rose-text); }
+
 /* Empty-States */
 .empty{ text-align:center; padding:44px 22px; color:var(--muted); }
 .empty .big{ font-size:40px; margin-bottom:8px; }
@@ -1092,16 +1111,36 @@ function viewMore(){
   <h2 class="section">Design</h2>
   <div class="card" style="margin-bottom:14px">
     <span class="lab">Farbwelt</span>
-    <div class="row" style="flex-wrap:wrap">
-      <button class="btn grow ${state.settings.palette!=='navy'?'primary':''}" data-action="set-palette" data-id="aura">🌸 Aura · Pink & Orange</button>
-      <button class="btn grow ${state.settings.palette==='navy'?'primary':''}" data-action="set-palette" data-id="navy">🌊 Nacht · Schwarz & Navy</button>
+    <div class="palpick">
+      <button class="palcard ${state.settings.palette!=='navy'?'active':''}" data-action="set-palette" data-id="aura" aria-pressed="${state.settings.palette!=='navy'}">
+        <span class="prev" style="background:radial-gradient(85% 75% at 18% 8%, rgba(255,168,84,.75), transparent 70%),radial-gradient(95% 85% at 88% 92%, rgba(143,91,222,.6), transparent 72%),radial-gradient(110% 95% at 55% 45%, rgba(255,79,163,.45), transparent 75%),#F4ECF9">
+          <span class="minihead"><i style="background:linear-gradient(135deg,#FF4FA3,#FF8A4C)"></i><b style="background:linear-gradient(100deg,#FF4FA3,#FF8A4C);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#C22571">Novelle</b></span>
+          <span class="minicard" style="background:rgba(255,255,255,.78);border-color:rgba(255,255,255,.9)">
+            <i class="l1" style="background:rgba(35,22,49,.72)"></i>
+            <i class="l2" style="background:rgba(35,22,49,.3)"></i>
+            <i class="bar" style="background:linear-gradient(90deg,#FF4FA3,#FF8A4C)"></i>
+          </span>
+        </span>
+        <span class="palmeta"><strong>Aura</strong><span>Pink & Orange</span>${state.settings.palette!=='navy'?'<em>✓</em>':''}</span>
+      </button>
+      <button class="palcard ${state.settings.palette==='navy'?'active':''}" data-action="set-palette" data-id="navy" aria-pressed="${state.settings.palette==='navy'}">
+        <span class="prev" style="background:radial-gradient(85% 75% at 18% 8%, rgba(62,107,214,.55), transparent 70%),radial-gradient(95% 85% at 88% 92%, rgba(36,69,126,.75), transparent 72%),#0A0F1B">
+          <span class="minihead"><i style="background:linear-gradient(135deg,#24457E,#3E6BD6)"></i><b style="background:linear-gradient(100deg,#7FA6E8,#AAB8FF);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#7FA6E8">Novelle</b></span>
+          <span class="minicard" style="background:rgba(28,40,66,.72);border-color:rgba(255,255,255,.16)">
+            <i class="l1" style="background:rgba(237,242,250,.85)"></i>
+            <i class="l2" style="background:rgba(237,242,250,.35)"></i>
+            <i class="bar" style="background:linear-gradient(90deg,#24457E,#3E6BD6)"></i>
+          </span>
+        </span>
+        <span class="palmeta"><strong>Nacht</strong><span>Schwarz & Navy</span>${state.settings.palette==='navy'?'<em>✓</em>':''}</span>
+      </button>
     </div>
     <p class="hint small" style="margin:10px 0 0">Hell- und Dunkelmodus folgen weiterhin deiner iPhone-Einstellung – die Farbwelt bestimmt Farben, Logo und Akzente.</p>
   </div>
 
   <h2 class="section">KI-Verbindung</h2>
   <div class="card" style="margin-bottom:14px">
-    <p class="hint small" style="margin:0 0 10px">Mit einem Claude-API-Schlüssel werden Buch-Chat, Fragenkatalog, 10 Fakten, Community-Stimmen und Empfehlungen von echter KI erstellt. Ohne Schlüssel arbeitet Novelle im lokalen Begleiter-Modus. Der Schlüssel bleibt nur auf deinem Gerät.</p>
+    <p class="hint small" style="margin:0 0 10px">Mit einem Claude-API-Schlüssel werden Buch-Chat, Fragenkatalog, 10 Fakten, Community-Stimmen und Empfehlungen von echter KI erstellt. Ohne Schlüssel arbeitet Novelle im lokalen Begleiter-Modus. Der Schlüssel bleibt nur auf deinem Gerät.<br><br>So verknüpfst du: Unter <strong>console.anthropic.com</strong> anmelden → „API Keys“ → Schlüssel erstellen (beginnt mit sk-ant-…) → hier einfügen und speichern. Hinweis: In der geschützten Claude-Vorschau sind externe Verbindungen gesperrt – die KI funktioniert, wenn die App eigenständig läuft (z. B. über GitHub Pages installiert).</p>
     <label class="f"><span class="lab">API-Schlüssel</span>
       <input class="f" id="set-key" type="password" placeholder="sk-ant-…" value="${esc(s.apiKey||'')}" autocomplete="off">
     </label>
