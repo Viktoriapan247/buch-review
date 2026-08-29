@@ -16,7 +16,7 @@ Kein Konto, kein Tracking – alle Daten bleiben im Browser des Geräts (localSt
 - **Wunschliste / Leseliste** und **Empfehlungen** auf Basis des eigenen Regals
 - **Statistik**: Bücher pro Jahr, Genres, Medien
 - **Backup exportieren / importieren** (JSON) – auch als Brücke zwischen Geräten
-- **Helles und dunkles Design**, dezente Akzentfarben (Aprikose, Flieder, Honiggelb, Rosé)
+- **Helles und dunkles Design**, Aura-Farbverläufe (Orange, Pink, Lila, Gelb) mit Frosted-Glass-Oberflächen im iOS-Stil
 
 ## KI-Funktionen (optional)
 
@@ -50,7 +50,7 @@ gesperrt – dort greift automatisch der Begleiter-Modus. Selbst gehostet
 
 ## Technik
 
-- Eine Datei, kein Framework, keine Abhängigkeiten außer Google Fonts (mit Fallbacks)
+- Eine Datei, kein Framework, keine externen Abhängigkeiten (System-Schriften: SF/Helvetica)
 - Datenmodell: `{ books: [...], settings: {...}, recs: [...] }` in `localStorage` (`eselsohr.v1`)
 - Design nach Apple-HIG-Prinzipien: Bottom-Tab-Navigation, Touch-Targets ≥ 44 pt,
   Kontraste ≥ 4.5:1, Dynamic-Type-freundliche Skala, Safe-Area-Insets, Light/Dark Mode
