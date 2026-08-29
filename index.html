@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#EFE8F6">
 <!-- A:HEAD:START -->
-<title>Chapter</title>
+<title>Novelle</title>
 <style>
 /* ============ Tokens: Licht (Basis) ============ */
 :root{
@@ -32,6 +32,8 @@
   --rose:#FF4FA3;    --rose-text:#C22571;
   --grad:linear-gradient(135deg,#FF4FA3 0%,#FF8A4C 100%);
   --grad-soft:linear-gradient(135deg,rgba(255,79,163,.14),rgba(255,138,76,.14));
+  --title-grad:linear-gradient(100deg,#FF4FA3 0%,#FF8A4C 55%,#8E5BD9 120%);
+  --logo1:#FF4FA3; --logo2:#FF8A4C; --logo3:#8E5BD9;
   --on-grad:#FFFFFF;
   --danger:#C03B52;
   --shadow:0 2px 6px rgba(60,20,80,.06), 0 14px 38px rgba(60,20,80,.12);
@@ -63,6 +65,10 @@
     --rose:#FF6FB5;    --rose-text:#FF93C7;
     --grad:linear-gradient(135deg,#FF4FA3 0%,#FF8A4C 100%);
     --grad-soft:linear-gradient(135deg,rgba(255,79,163,.20),rgba(255,138,76,.20));
+  --title-grad:linear-gradient(100deg,#FF6FB5 0%,#FFA470 55%,#B08FE8 120%);
+  --logo1:#FF4FA3; --logo2:#FF8A4C; --logo3:#8E5BD9;
+    --title-grad:linear-gradient(100deg,#FF6FB5 0%,#FFA470 55%,#B08FE8 120%);
+    --logo1:#FF4FA3; --logo2:#FF8A4C; --logo3:#8E5BD9;
     --on-grad:#FFFFFF;
     --danger:#FF8296;
     --shadow:0 2px 6px rgba(0,0,0,.35), 0 14px 38px rgba(0,0,0,.4);
@@ -94,6 +100,8 @@
   --rose:#FF6FB5;    --rose-text:#FF93C7;
   --grad:linear-gradient(135deg,#FF4FA3 0%,#FF8A4C 100%);
   --grad-soft:linear-gradient(135deg,rgba(255,79,163,.20),rgba(255,138,76,.20));
+  --title-grad:linear-gradient(100deg,#FF6FB5 0%,#FFA470 55%,#B08FE8 120%);
+  --logo1:#FF4FA3; --logo2:#FF8A4C; --logo3:#8E5BD9;
   --on-grad:#FFFFFF;
   --danger:#FF8296;
   --shadow:0 2px 6px rgba(0,0,0,.35), 0 14px 38px rgba(0,0,0,.4);
@@ -101,6 +109,81 @@
   --hilite:rgba(255,255,255,.14);
   --nav-bg:rgba(20,14,29,.6);
   --toast-bg:rgba(245,239,250,.95); --toast-ink:#231631;
+}
+
+/* ============ Farbwelt „Nacht“: Schwarz & Navy ============ */
+:root[data-palette="navy"]{
+  --bg:#E8ECF3;
+  --aura:
+    radial-gradient(60% 44% at 16% 6%,  rgba(36,69,126,.34),  transparent 72%),
+    radial-gradient(55% 42% at 88% 20%, rgba(127,166,232,.34), transparent 72%),
+    radial-gradient(75% 58% at 50% 58%, rgba(62,107,214,.22),  transparent 74%),
+    radial-gradient(85% 62% at 85% 100%,rgba(14,27,51,.30),    transparent 76%),
+    radial-gradient(70% 50% at 8% 92%,  rgba(62,107,214,.18),  transparent 74%);
+  --ink:#131C30; --muted:#566175; --line:rgba(19,28,48,.10);
+  --apricot:#3E6BD6; --apricot-text:#2B4FA8;
+  --lilac:#5560C9;   --lilac-text:#3E49AC;
+  --gold:#4A7DDC;    --gold-text:#2B4FA8;
+  --rose:#24457E;    --rose-text:#1D3765;
+  --grad:linear-gradient(135deg,#0E1B33 0%,#24457E 55%,#3E6BD6 100%);
+  --grad-soft:linear-gradient(135deg,rgba(14,27,51,.12),rgba(62,107,214,.14));
+  --title-grad:linear-gradient(100deg,#0E1B33 0%,#24457E 55%,#3E6BD6 120%);
+  --logo1:#0E1B33; --logo2:#24457E; --logo3:#3E6BD6;
+  --glow:0 6px 22px rgba(36,69,126,.35);
+  --nav-bg:rgba(240,244,250,.62);
+  --toast-bg:rgba(14,22,40,.92); --toast-ink:#F2F6FD;
+}
+@media (prefers-color-scheme: dark){
+  :root[data-palette="navy"]:not([data-theme="light"]){
+    --bg:#070A12;
+    --aura:
+      radial-gradient(60% 44% at 16% 6%,  rgba(36,69,126,.42),  transparent 72%),
+      radial-gradient(55% 42% at 88% 20%, rgba(127,166,232,.14), transparent 72%),
+      radial-gradient(75% 58% at 50% 58%, rgba(62,107,214,.20),  transparent 74%),
+      radial-gradient(85% 62% at 85% 100%,rgba(20,32,58,.55),    transparent 76%),
+      radial-gradient(70% 50% at 8% 92%,  rgba(62,107,214,.12),  transparent 74%);
+    --surface:rgba(22,32,54,.58); --surface-solid:#111A2E; --surface2:rgba(255,255,255,.08);
+    --glass-border:rgba(255,255,255,.13); --hilite:rgba(255,255,255,.12);
+    --ink:#EDF2FA; --muted:#93A1BC; --line:rgba(255,255,255,.12);
+    --apricot:#6E96E8; --apricot-text:#8FB0F0;
+    --lilac:#8C96E8;   --lilac-text:#A6AFF2;
+    --gold:#7FA6E8;    --gold-text:#9FBEF2;
+    --rose:#5F87DC;    --rose-text:#86A9EC;
+    --grad:linear-gradient(135deg,#16213A 0%,#3E6BD6 100%);
+    --grad-soft:linear-gradient(135deg,rgba(36,69,126,.28),rgba(62,107,214,.22));
+    --title-grad:linear-gradient(100deg,#7FA6E8 0%,#3E6BD6 60%,#AAB8FF 120%);
+    --logo1:#16213A; --logo2:#24457E; --logo3:#3E6BD6;
+    --glow:0 6px 22px rgba(62,107,214,.3);
+    --nav-bg:rgba(7,10,18,.6);
+    --toast-bg:rgba(237,242,250,.95); --toast-ink:#131C30;
+    --danger:#FF8296;
+    --shadow:0 2px 6px rgba(0,0,0,.35), 0 14px 38px rgba(0,0,0,.4);
+  }
+}
+:root[data-palette="navy"][data-theme="dark"]{
+  --bg:#070A12;
+  --aura:
+    radial-gradient(60% 44% at 16% 6%,  rgba(36,69,126,.42),  transparent 72%),
+    radial-gradient(55% 42% at 88% 20%, rgba(127,166,232,.14), transparent 72%),
+    radial-gradient(75% 58% at 50% 58%, rgba(62,107,214,.20),  transparent 74%),
+    radial-gradient(85% 62% at 85% 100%,rgba(20,32,58,.55),    transparent 76%),
+    radial-gradient(70% 50% at 8% 92%,  rgba(62,107,214,.12),  transparent 74%);
+  --surface:rgba(22,32,54,.58); --surface-solid:#111A2E; --surface2:rgba(255,255,255,.08);
+  --glass-border:rgba(255,255,255,.13); --hilite:rgba(255,255,255,.12);
+  --ink:#EDF2FA; --muted:#93A1BC; --line:rgba(255,255,255,.12);
+  --apricot:#6E96E8; --apricot-text:#8FB0F0;
+  --lilac:#8C96E8;   --lilac-text:#A6AFF2;
+  --gold:#7FA6E8;    --gold-text:#9FBEF2;
+  --rose:#5F87DC;    --rose-text:#86A9EC;
+  --grad:linear-gradient(135deg,#16213A 0%,#3E6BD6 100%);
+  --grad-soft:linear-gradient(135deg,rgba(36,69,126,.28),rgba(62,107,214,.22));
+  --title-grad:linear-gradient(100deg,#7FA6E8 0%,#3E6BD6 60%,#AAB8FF 120%);
+  --logo1:#16213A; --logo2:#24457E; --logo3:#3E6BD6;
+  --glow:0 6px 22px rgba(62,107,214,.3);
+  --nav-bg:rgba(7,10,18,.6);
+  --toast-bg:rgba(237,242,250,.95); --toast-ink:#131C30;
+  --danger:#FF8296;
+  --shadow:0 2px 6px rgba(0,0,0,.35), 0 14px 38px rgba(0,0,0,.4);
 }
 
 *{box-sizing:border-box}
@@ -137,10 +220,12 @@ header.app{
 }
 header.app h1{
   font-size:24px; font-weight:800; margin:0; letter-spacing:-0.03em; text-wrap:balance;
-  background:linear-gradient(100deg,#FF4FA3 0%,#FF8A4C 55%,#8E5BD9 120%);
+  background:var(--title-grad);
   -webkit-background-clip:text; background-clip:text;
-  -webkit-text-fill-color:transparent; color:#C22571;
+  -webkit-text-fill-color:transparent; color:var(--rose-text);
 }
+.logo{ width:38px; height:38px; flex-shrink:0; filter:drop-shadow(0 3px 8px rgba(30,20,60,.28)); }
+.logo .lg1{ stop-color:var(--logo1) } .logo .lg2{ stop-color:var(--logo2) } .logo .lg3{ stop-color:var(--logo3) }
 header.app .sub{ font-size:12.5px; color:var(--muted); font-weight:500; margin-top:-1px; }
 main{ flex:1; padding:16px 16px calc(100px + env(safe-area-inset-bottom)); }
 
@@ -421,9 +506,20 @@ a{ color:var(--rose-text); font-weight:600; }
 <!-- A:BODY:START -->
 <div id="app">
   <header class="app">
-    <div>
-      <h1 id="apptitle">Chapter</h1>
-      <div class="sub" id="appsub">Dein Bücherregal</div>
+    <div class="row" style="gap:11px">
+      <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+        <defs><linearGradient id="logograd" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" class="lg1"/><stop offset=".55" class="lg2"/><stop offset="1" class="lg3"/>
+        </linearGradient></defs>
+        <rect x="3" y="3" width="58" height="58" rx="17" fill="url(#logograd)"/>
+        <path d="M32 23 C27 18.5 18.5 17.5 13.5 20.5 V43.5 C18.5 40.5 27 41.5 32 46 Z" fill="#fff" opacity=".95"/>
+        <path d="M32 23 C37 18.5 45.5 17.5 50.5 20.5 V43.5 C45.5 40.5 37 41.5 32 46 Z" fill="#fff" opacity=".76"/>
+        <path d="M46.5 8.5 l1.9 3.8 3.8 1.9 -3.8 1.9 -1.9 3.8 -1.9 -3.8 -3.8 -1.9 3.8 -1.9 z" fill="#fff" opacity=".92"/>
+      </svg>
+      <div>
+        <h1 id="apptitle">Novelle</h1>
+        <div class="sub" id="appsub">Dein Bücherregal</div>
+      </div>
     </div>
     <button class="iconbtn" data-action="add-book" aria-label="Buch hinzufügen" title="Buch hinzufügen">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -463,7 +559,7 @@ a{ color:var(--rose-text); font-weight:600; }
 <script>
 'use strict';
 /* =====================================================================
-   Chapter – dein digitales Bücherregal
+   Novelle – dein digitales Bücherregal
    Daten bleiben lokal auf dem Gerät (localStorage). Optional lässt sich
    ein Claude-API-Schlüssel hinterlegen, der Chat, Fragenkatalog, Fakten
    und Empfehlungen mit echter KI betreibt (außerhalb der Artifact-
@@ -543,7 +639,10 @@ function boundaryLabel(b){
 /* ---------- Cover ---------- */
 function coverHTML(b, extra=''){
   if(b.cover) return `<div class="cover ${extra}"><img src="${b.cover}" alt="Cover von ${esc(b.title)}"></div>`;
-  const pair = [['#FF8A4C','#FF4FA3'],['#8E5BD9','#FF4FA3'],['#FFB84C','#FF7A5C'],['#B06BE0','#7F6BFF']][hashN(b.title||'?',4)];
+  const pairs = state.settings.palette==='navy'
+    ? [['#24457E','#3E6BD6'],['#16213A','#3E6BD6'],['#3E6BD6','#7FA6E8'],['#101827','#24457E']]
+    : [['#FF8A4C','#FF4FA3'],['#8E5BD9','#FF4FA3'],['#FFB84C','#FF7A5C'],['#B06BE0','#7F6BFF']];
+  const pair = pairs[hashN(b.title||'?',4)];
   const initial = (b.title||'?').trim().charAt(0).toUpperCase();
   return `<div class="cover ${extra}" style="background:linear-gradient(150deg, ${pair[0]}, ${pair[1]})">
     <div class="ph"><span>${esc(initial)}<small>${esc((b.author||'').split(' ').slice(-1)[0]||'')}</small></span></div>
@@ -594,7 +693,7 @@ async function aiCall(messages, system, maxTokens=1200){
   return (data.content||[]).map(c => c.text || '').join('');
 }
 function aiBlockedHint(){
-  return 'Die KI-Verbindung hat nicht geklappt. In der geschützten Artifact-Ansicht sind externe Verbindungen gesperrt – dort arbeitet Chapter im lokalen Begleiter-Modus. Als eigenständig installierte App (siehe README) funktioniert die KI mit deinem API-Schlüssel.';
+  return 'Die KI-Verbindung hat nicht geklappt. In der geschützten Artifact-Ansicht sind externe Verbindungen gesperrt – dort arbeitet Novelle im lokalen Begleiter-Modus. Als eigenständig installierte App (siehe README) funktioniert die KI mit deinem API-Schlüssel.';
 }
 /* Sehr kleine Markdown-Aufbereitung für KI-Antworten */
 function md(t){
@@ -726,7 +825,7 @@ function companionReply(b, userText){
    Rendering: Tabs
    ===================================================================== */
 const TABTITLES = {
-  reading:['Chapter','Was du gerade liest'],
+  reading:['Novelle','Was du gerade liest'],
   shelf:['Bücherregal','Alles, was du gelesen hast'],
   discover:['Entdecken','Wunschliste & Empfehlungen'],
   more:['Mehr','Statistik & Einstellungen'],
@@ -750,7 +849,7 @@ function viewReading(){
   let intro = '';
   if(!state.settings.seenIntro){
     intro = `<div class="card intro">
-      <h2 class="section" style="margin-top:0">Willkommen bei Chapter 🔖</h2>
+      <h2 class="section" style="margin-top:0">Willkommen bei Novelle 🔖</h2>
       <p class="hint" style="margin:0 0 10px">Dein persönliches Bücherregal: Lege Bücher an (auch nachträglich mit Lesejahr), verbinde Reihen, beantworte nach dem Beenden einen persönlichen Fragenkatalog und unterhalte dich spoilerfrei über dein Buch. Alles bleibt privat auf deinem Gerät – ganz ohne Konto.</p>
       <div class="row" style="flex-wrap:wrap">
         <button class="btn accent sm" data-action="add-book">Erstes Buch anlegen</button>
@@ -925,10 +1024,10 @@ function viewDiscover(){
   <h2 class="section">Empfehlungen für dich</h2>
   <div class="card">
     ${finished.length||state.books.some(b=>b.status==='reading') ? `
-      <p class="hint" style="margin:0 0 10px">${topGenres.length?`Du liest gern <strong>${topGenres.map(esc).join(', ')}</strong>. `:''}Chapter schlägt dir passende Bücher vor – auf Basis deines Regals und deiner aktuellen Lektüre.</p>
+      <p class="hint" style="margin:0 0 10px">${topGenres.length?`Du liest gern <strong>${topGenres.map(esc).join(', ')}</strong>. `:''}Novelle schlägt dir passende Bücher vor – auf Basis deines Regals und deiner aktuellen Lektüre.</p>
       <button class="btn primary block" data-action="gen-recs" id="recbtn">✨ Empfehlungen erstellen</button>
-      ${!aiAvailable()?`<p class="hint small" style="margin:10px 0 0">Dafür braucht Chapter die KI-Verbindung (Einstellungen → KI). Ohne sie kannst du deine Wunschliste natürlich trotzdem pflegen.</p>`:''}
-    ` : `<p class="hint" style="margin:0">Sobald ein paar Bücher in deinem Regal stehen, kann Chapter einschätzen, was zu dir passt.</p>`}
+      ${!aiAvailable()?`<p class="hint small" style="margin:10px 0 0">Dafür braucht Novelle die KI-Verbindung (Einstellungen → KI). Ohne sie kannst du deine Wunschliste natürlich trotzdem pflegen.</p>`:''}
+    ` : `<p class="hint" style="margin:0">Sobald ein paar Bücher in deinem Regal stehen, kann Novelle einschätzen, was zu dir passt.</p>`}
   </div>
   ${recsHTML}`;
 }
@@ -990,9 +1089,19 @@ function viewMore(){
     ${media.length?`<div class="eyebrow">So liest du</div><div class="row" style="flex-wrap:wrap;gap:6px">${media.map(([k,n])=>`<span class="chip">${MEDIA[k]?.icon} ${MEDIA[k]?.label} · ${n}</span>`).join('')}</div>`:''}
   </div>`:''}
 
+  <h2 class="section">Design</h2>
+  <div class="card" style="margin-bottom:14px">
+    <span class="lab">Farbwelt</span>
+    <div class="row" style="flex-wrap:wrap">
+      <button class="btn grow ${state.settings.palette!=='navy'?'primary':''}" data-action="set-palette" data-id="aura">🌸 Aura · Pink & Orange</button>
+      <button class="btn grow ${state.settings.palette==='navy'?'primary':''}" data-action="set-palette" data-id="navy">🌊 Nacht · Schwarz & Navy</button>
+    </div>
+    <p class="hint small" style="margin:10px 0 0">Hell- und Dunkelmodus folgen weiterhin deiner iPhone-Einstellung – die Farbwelt bestimmt Farben, Logo und Akzente.</p>
+  </div>
+
   <h2 class="section">KI-Verbindung</h2>
   <div class="card" style="margin-bottom:14px">
-    <p class="hint small" style="margin:0 0 10px">Mit einem Claude-API-Schlüssel werden Buch-Chat, Fragenkatalog, 10 Fakten, Community-Stimmen und Empfehlungen von echter KI erstellt. Ohne Schlüssel arbeitet Chapter im lokalen Begleiter-Modus. Der Schlüssel bleibt nur auf deinem Gerät.</p>
+    <p class="hint small" style="margin:0 0 10px">Mit einem Claude-API-Schlüssel werden Buch-Chat, Fragenkatalog, 10 Fakten, Community-Stimmen und Empfehlungen von echter KI erstellt. Ohne Schlüssel arbeitet Novelle im lokalen Begleiter-Modus. Der Schlüssel bleibt nur auf deinem Gerät.</p>
     <label class="f"><span class="lab">API-Schlüssel</span>
       <input class="f" id="set-key" type="password" placeholder="sk-ant-…" value="${esc(s.apiKey||'')}" autocomplete="off">
     </label>
@@ -1016,9 +1125,9 @@ function viewMore(){
     </div>
   </div>
 
-  <h2 class="section">Über Chapter</h2>
+  <h2 class="section">Über Novelle</h2>
   <div class="card">
-    <p class="hint small" style="margin:0">Chapter ist deine private Lese-App – ohne Konto, ohne Tracking. Ein optionales Konto mit Synchronisierung über mehrere Geräte ist für die Zukunft vorgemerkt; die App ist dafür vorbereitet (Export/Import als Brücke). Version 1.0</p>
+    <p class="hint small" style="margin:0">Novelle ist deine private Lese-App – ohne Konto, ohne Tracking. Ein optionales Konto mit Synchronisierung über mehrere Geräte ist für die Zukunft vorgemerkt; die App ist dafür vorbereitet (Export/Import als Brücke). Version 1.0</p>
   </div>`;
 }
 function bindMore(){
@@ -1031,14 +1140,14 @@ function bindMore(){
         const data = JSON.parse(r.result);
         if(!data || !Array.isArray(data.books)) throw new Error('format');
         state = data; save(); renderApp(); toast(`Backup geladen: ${data.books.length} Bücher 📚`);
-      }catch(e){ toast('Das ist kein gültiges Chapter-Backup.'); }
+      }catch(e){ toast('Das ist kein gültiges Novelle-Backup.'); }
     };
     r.readAsText(file);
   });
 }
 async function exportBackup(){
   const data = JSON.stringify(state, null, 2);
-  const filename = 'chapter-backup-'+todayISO()+'.json';
+  const filename = 'novelle-backup-'+todayISO()+'.json';
   try{
     if(window.claude && typeof window.claude.use === 'function'){
       const dl = await window.claude.use('downloads');
@@ -1122,7 +1231,7 @@ function openBookForm(book, preset){
           </select>
           ${aiAvailable()?`<button type="button" class="btn sm" data-action="suggest-genre" title="Genre von der KI einschätzen lassen">✨</button>`:''}
         </div>
-        ${!aiAvailable()?'<span class="hint small">Mit KI-Verbindung (unter „Mehr“) schätzt Chapter das Genre automatisch ein.</span>':''}
+        ${!aiAvailable()?'<span class="hint small">Mit KI-Verbindung (unter „Mehr“) schätzt Novelle das Genre automatisch ein.</span>':''}
       </label>
       <div class="f2" style="margin-bottom:0">
         <label class="f" style="margin-bottom:0"><span class="lab">Reihe (optional)</span>
@@ -1455,21 +1564,21 @@ async function genCommunity(id){
 }
 function localFactsFallback(b){
   const q = encodeURIComponent(`${b.title} ${b.author||''}`.trim());
-  return `Ohne KI-Verbindung kann Chapter keine Fakten erzeugen – aber hier sind gute Startpunkte für „${b.title}“:
+  return `Ohne KI-Verbindung kann Novelle keine Fakten erzeugen – aber hier sind gute Startpunkte für „${b.title}“:
 
 1. Wikipedia-Suche: https://de.wikipedia.org/w/index.php?search=${q}
 2. Perlentaucher (Rezensionen): https://www.perlentaucher.de/suche.html?q=${q}
 
-Sobald du unter „Mehr → KI-Verbindung“ einen Schlüssel hinterlegst (und die App außerhalb der geschützten Vorschau nutzt), erstellt dir Chapter hier 10 persönliche Fakten zu Buch und Autor·in.`;
+Sobald du unter „Mehr → KI-Verbindung“ einen Schlüssel hinterlegst (und die App außerhalb der geschützten Vorschau nutzt), erstellt dir Novelle hier 10 persönliche Fakten zu Buch und Autor·in.`;
 }
 function localCommunityFallback(b){
   const q = encodeURIComponent(`${b.title} ${b.author||''}`.trim());
-  return `Ohne KI-Verbindung zeigt Chapter hier keine Zusammenfassung der Community-Stimmen. Wo Leserinnen und Leser über „${b.title}“ diskutieren:
+  return `Ohne KI-Verbindung zeigt Novelle hier keine Zusammenfassung der Community-Stimmen. Wo Leserinnen und Leser über „${b.title}“ diskutieren:
 
 - Goodreads: https://www.goodreads.com/search?q=${q}
 - LovelyBooks: https://www.lovelybooks.de/suche/?keyword=${q}
 
-Mit KI-Verbindung fasst Chapter die spannendsten Lesermeinungen und Deutungen direkt hier für dich zusammen.`;
+Mit KI-Verbindung fasst Novelle die spannendsten Lesermeinungen und Deutungen direkt hier für dich zusammen.`;
 }
 function openTextSheet(title, text, isFallback=false, loading=false){
   return openOverlay(title, `<div class="card aitext">${loading?'<p class="hint">Einen Moment – wird für dich zusammengestellt… ✨</p>':md(text)}</div>${isFallback?'':''}`);
@@ -1515,7 +1624,7 @@ function openChat(id){
     let reply;
     if(aiAvailable()){
       try{
-        const sys = `Du bist ein herzlicher, belesener Lesebegleiter in der Bücher-App Chapter. Die Nutzerin liest gerade "${b.title}"${b.author?` von ${b.author}`:''}${b.genre?` (${b.genre})`:''}${b.status==='finished'?' und hat es bereits BEENDET – ihr dürft über das ganze Buch sprechen':''}.
+        const sys = `Du bist ein herzlicher, belesener Lesebegleiter in der Bücher-App Novelle. Die Nutzerin liest gerade "${b.title}"${b.author?` von ${b.author}`:''}${b.genre?` (${b.genre})`:''}${b.status==='finished'?' und hat es bereits BEENDET – ihr dürft über das ganze Buch sprechen':''}.
 ${b.status!=='finished'?`WICHTIG – SPOILERSCHUTZ: Sie ist erst bei ${boundaryLabel(b)}. Sprich ausschließlich über Inhalte bis zu dieser Stelle. Verrate NICHTS, was danach passiert – auch nicht andeutungsweise und auch nicht auf direkte Nachfrage. Biete stattdessen an, gemeinsam spoilerfrei zu spekulieren.`:''}
 Antworte auf Deutsch, warm und prägnant (höchstens ~120 Wörter), stelle gern eine Rückfrage. Wenn du das Buch nicht sicher kennst, sage das ehrlich und arbeite mit dem, was die Nutzerin erzählt.`;
         const msgs = b.chat.slice(-24).map(m=>({role: m.role==='user'?'user':'assistant', content:m.content}));
@@ -1579,6 +1688,11 @@ const ACTIONS = {
   },
   'close-overlay': () => closeOverlay(),
   'intro-dismiss': () => { state.settings.seenIntro = true; save(); renderApp(); },
+  'set-palette': el => {
+    state.settings.palette = el.dataset.id==='navy' ? 'navy' : 'aura';
+    save(); applyPalette(); renderApp();
+    toast(state.settings.palette==='navy' ? 'Farbwelt: Nacht 🌊' : 'Farbwelt: Aura 🌸');
+  },
   'save-settings': () => {
     state.settings.apiKey = $('#set-key').value.trim();
     state.settings.model = $('#set-model').value;
@@ -1602,7 +1716,13 @@ document.addEventListener('click', e => {
   if(fn) fn(el, el.dataset.id, e);
 });
 
+function applyPalette(){
+  if(state.settings.palette==='navy') document.documentElement.setAttribute('data-palette','navy');
+  else document.documentElement.removeAttribute('data-palette');
+}
+
 /* Start */
+applyPalette();
 renderApp();
 </script>
 <!-- A:BODY:END -->

@@ -1,4 +1,4 @@
-# Chapter 🔖 – dein digitales Bücherregal
+# Novelle 🔖 – dein digitales Bücherregal
 
 Eine private, mobile-first Lese-App als eine einzige HTML-Datei (`index.html`).
 Kein Konto, kein Tracking – alle Daten bleiben im Browser des Geräts (localStorage).
@@ -16,7 +16,7 @@ Kein Konto, kein Tracking – alle Daten bleiben im Browser des Geräts (localSt
 - **Wunschliste / Leseliste** und **Empfehlungen** auf Basis des eigenen Regals
 - **Statistik**: Bücher pro Jahr, Genres, Medien
 - **Backup exportieren / importieren** (JSON) – auch als Brücke zwischen Geräten
-- **Helles und dunkles Design**, Aura-Farbverläufe (Orange, Pink, Lila, Gelb) mit Frosted-Glass-Oberflächen im iOS-Stil
+- **Helles und dunkles Design** mit zwei wählbaren Farbwelten: „Aura“ (Pink, Orange, Lila, Gelb) und „Nacht“ (Schwarz & Navy), jeweils mit Frosted-Glass-Oberflächen im iOS-Stil und passendem Logo
 
 ## KI-Funktionen (optional)
 
