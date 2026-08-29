@@ -1,0 +1,1534 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FAF7F4">
+<!-- A:HEAD:START -->
+<title>Eselsohr</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+/* ============ Tokens: Licht (Basis) ============ */
+:root{
+  color-scheme: light dark;
+  --bg:#FAF7F4;
+  --surface:#FFFFFF;
+  --surface2:#F2ECE7;
+  --ink:#2B2126;
+  --muted:#72636A;
+  --line:#E8DED8;
+  --apricot:#C96F45; --apricot-text:#A2532D;
+  --lilac:#8168AC;   --lilac-text:#665093;
+  --gold:#B8862F;    --gold-text:#8A6417;
+  --rose:#BC5E82;    --rose-text:#9C4468;
+  --danger:#B03A3A;
+  --shadow:0 1px 2px rgba(43,33,38,.05), 0 10px 28px rgba(43,33,38,.08);
+  --nav-bg:rgba(250,247,244,.88);
+}
+/* ============ Tokens: Dunkel (System) ============ */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#181215;
+    --surface:#221A1F;
+    --surface2:#2C2229;
+    --ink:#F2EAEE;
+    --muted:#AD9AA4;
+    --line:#382C34;
+    --apricot:#E29A70; --apricot-text:#E8A67F;
+    --lilac:#AC8FDC;   --lilac-text:#BCA3E6;
+    --gold:#D9A94F;    --gold-text:#E2B865;
+    --rose:#E087A9;    --rose-text:#E797B5;
+    --danger:#E27B7B;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 28px rgba(0,0,0,.35);
+    --nav-bg:rgba(24,18,21,.88);
+  }
+}
+/* ============ Tokens: Dunkel (explizit gewählt) ============ */
+:root[data-theme="dark"]{
+  --bg:#181215;
+  --surface:#221A1F;
+  --surface2:#2C2229;
+  --ink:#F2EAEE;
+  --muted:#AD9AA4;
+  --line:#382C34;
+  --apricot:#E29A70; --apricot-text:#E8A67F;
+  --lilac:#AC8FDC;   --lilac-text:#BCA3E6;
+  --gold:#D9A94F;    --gold-text:#E2B865;
+  --rose:#E087A9;    --rose-text:#E797B5;
+  --danger:#E27B7B;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 28px rgba(0,0,0,.35);
+  --nav-bg:rgba(24,18,21,.88);
+}
+
+*{box-sizing:border-box}
+html{ -webkit-text-size-adjust:100% }
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size:16px; line-height:1.55;
+  min-height:100dvh;
+}
+.serif{ font-family:"Fraunces", Georgia, "Times New Roman", serif; }
+button, input, select, textarea{ font:inherit; color:inherit; }
+img{ max-width:100%; display:block; }
+:focus-visible{ outline:2px solid var(--lilac); outline-offset:2px; border-radius:6px; }
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{ animation:none !important; transition:none !important; }
+}
+
+/* ============ App-Shell ============ */
+#app{ max-width:540px; margin:0 auto; min-height:100dvh; display:flex; flex-direction:column; }
+header.app{
+  position:sticky; top:0; z-index:30;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:14px 20px 10px; background:var(--nav-bg);
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+header.app h1{
+  font-family:"Fraunces", Georgia, serif; font-weight:600; font-size:22px; margin:0;
+  letter-spacing:.01em; text-wrap:balance;
+}
+header.app .sub{ font-size:12.5px; color:var(--muted); margin-top:-2px; }
+main{ flex:1; padding:16px 16px calc(96px + env(safe-area-inset-bottom)); }
+
+/* ============ Bottom-Navigation ============ */
+nav.tabs{
+  position:fixed; bottom:0; left:0; right:0; z-index:40;
+  background:var(--nav-bg); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+  border-top:1px solid var(--line);
+}
+nav.tabs .inner{
+  max-width:540px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr);
+  padding:6px 8px calc(6px + env(safe-area-inset-bottom));
+}
+nav.tabs button{
+  appearance:none; background:none; border:0; cursor:pointer;
+  min-height:52px; display:flex; flex-direction:column; align-items:center; gap:3px;
+  color:var(--muted); font-size:11.5px; font-weight:600; border-radius:12px; padding:6px 0 4px;
+}
+nav.tabs button svg{ width:24px; height:24px; }
+nav.tabs button.active{ color:var(--apricot-text); }
+nav.tabs button.active .navdot{ background:var(--apricot); }
+
+/* ============ Bausteine ============ */
+.card{
+  background:var(--surface); border:1px solid var(--line); border-radius:18px;
+  box-shadow:var(--shadow); padding:16px;
+}
+.stack{ display:flex; flex-direction:column; gap:14px; }
+.row{ display:flex; align-items:center; gap:10px; }
+.grow{ flex:1; min-width:0; }
+.eyebrow{
+  font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--muted); margin:6px 2px 8px;
+}
+h2.section{ font-family:"Fraunces",Georgia,serif; font-size:19px; font-weight:600; margin:4px 2px 10px; text-wrap:balance; }
+.hint{ color:var(--muted); font-size:14px; }
+.small{ font-size:13px; }
+hr.sep{ border:0; border-top:1px solid var(--line); margin:14px 0; }
+
+.btn{
+  appearance:none; border:1px solid var(--line); background:var(--surface);
+  border-radius:14px; padding:11px 16px; font-weight:600; font-size:15px; cursor:pointer;
+  min-height:44px; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  color:var(--ink);
+}
+.btn.primary{ background:var(--ink); color:var(--bg); border-color:var(--ink); }
+.btn.accent{ background:var(--apricot); border-color:var(--apricot); color:#fff; }
+:root[data-theme="dark"] .btn.accent{ color:#241209; }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .btn.accent{ color:#241209; } }
+.btn.ghost{ background:transparent; }
+.btn.sm{ padding:7px 12px; min-height:44px; font-size:13.5px; border-radius:12px; }
+.btn.danger{ color:var(--danger); border-color:color-mix(in srgb, var(--danger) 40%, transparent); }
+.btn:disabled{ opacity:.5; cursor:default; }
+.btn.block{ width:100%; }
+
+.chip{
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:12.5px; font-weight:600; padding:3px 10px; border-radius:999px;
+  background:var(--surface2); color:var(--muted); white-space:nowrap;
+}
+.chip.apricot{ background:color-mix(in srgb, var(--apricot) 14%, transparent); color:var(--apricot-text); }
+.chip.lilac  { background:color-mix(in srgb, var(--lilac) 14%, transparent);   color:var(--lilac-text); }
+.chip.gold   { background:color-mix(in srgb, var(--gold) 16%, transparent);    color:var(--gold-text); }
+.chip.rose   { background:color-mix(in srgb, var(--rose) 14%, transparent);    color:var(--rose-text); }
+
+/* Formulare */
+label.f{ display:block; margin-bottom:12px; }
+label.f .lab, .lab{
+  display:block; font-size:12px; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--muted); margin-bottom:5px;
+}
+input.f, select.f, textarea.f{
+  width:100%; border:1px solid var(--line); border-radius:12px; background:var(--surface);
+  padding:11px 12px; font-size:16px; min-height:44px;
+}
+textarea.f{ min-height:96px; resize:vertical; }
+.f2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.check{ display:flex; gap:10px; align-items:flex-start; font-size:15px; margin-bottom:12px; }
+.check input{ width:20px; height:20px; margin-top:2px; accent-color:var(--apricot); }
+
+/* Cover */
+.cover{
+  border-radius:10px; overflow:hidden; background:var(--surface2);
+  aspect-ratio:2/3; position:relative; flex-shrink:0;
+  box-shadow:0 2px 6px rgba(43,33,38,.18);
+}
+.cover img{ width:100%; height:100%; object-fit:cover; }
+.cover .ph{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-family:"Fraunces",Georgia,serif; font-weight:600; color:rgba(255,255,255,.92);
+  font-size:26px; text-shadow:0 1px 4px rgba(0,0,0,.25); padding:8px; text-align:center;
+}
+.cover .ph small{ font-size:10px; font-family:"Schibsted Grotesk",sans-serif; font-weight:600; letter-spacing:.08em; text-transform:uppercase; display:block; opacity:.85 }
+
+/* Aktuell-Karten */
+.readcard{ display:flex; gap:14px; }
+.readcard .cover{ width:84px; }
+.readcard h3{ margin:0 0 2px; font-family:"Fraunces",Georgia,serif; font-size:17.5px; font-weight:600; line-height:1.25; text-wrap:balance; }
+.readcard .author{ color:var(--muted); font-size:13.5px; margin-bottom:6px; }
+.progress{ height:6px; border-radius:99px; background:var(--surface2); overflow:hidden; margin:8px 0 4px; }
+.progress i{ display:block; height:100%; background:linear-gradient(90deg, var(--apricot), var(--rose)); border-radius:99px; }
+.plabel{ font-size:12.5px; color:var(--muted); font-variant-numeric:tabular-nums; }
+.readcard .acts{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+
+/* Regal-Raster */
+.shelfgrid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px 12px; }
+@media (min-width:420px){ .shelfgrid{ grid-template-columns:repeat(4,1fr); } }
+.shelfitem{ appearance:none; background:none; border:0; padding:0; cursor:pointer; text-align:left; }
+.shelfitem .t{ font-size:12.5px; font-weight:600; line-height:1.3; margin-top:6px;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; color:var(--ink); }
+.shelfitem .y{ font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums; }
+.badge-year{
+  position:absolute; bottom:6px; right:6px; font-size:10.5px; font-weight:700;
+  background:rgba(20,12,16,.62); color:#fff; padding:2px 7px; border-radius:99px;
+  font-variant-numeric:tabular-nums; -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+}
+.badge-series{
+  position:absolute; top:6px; left:6px; font-size:10.5px; font-weight:700;
+  background:color-mix(in srgb, var(--lilac) 88%, black); color:#fff; padding:2px 7px; border-radius:99px;
+}
+
+/* Filterzeile */
+.filters{ display:flex; gap:8px; overflow-x:auto; padding:2px 2px 10px; scrollbar-width:none; }
+.filters::-webkit-scrollbar{ display:none }
+.filters select{
+  border:1px solid var(--line); background:var(--surface); border-radius:999px;
+  padding:7px 12px; font-size:13.5px; font-weight:600; min-height:38px; color:var(--ink);
+}
+.searchwrap{ position:relative; margin-bottom:10px; }
+.searchwrap svg{ position:absolute; left:13px; top:50%; transform:translateY(-50%); width:18px; height:18px; color:var(--muted); }
+.searchwrap input{ padding-left:40px; border-radius:999px; }
+
+/* Overlays / Sheets */
+#overlays .sheet{
+  position:fixed; inset:0; z-index:60; background:var(--bg);
+  display:flex; flex-direction:column; animation:sheetIn .22s ease;
+}
+@keyframes sheetIn{ from{ transform:translateY(24px); opacity:0 } to{ transform:none; opacity:1 } }
+.sheet .shead{
+  position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:10px;
+  padding:12px 14px; background:var(--nav-bg);
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.sheet .shead h2{ margin:0; font-family:"Fraunces",Georgia,serif; font-size:18px; font-weight:600; flex:1; min-width:0;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sheet .sbody{ flex:1; overflow-y:auto; padding:16px 16px calc(28px + env(safe-area-inset-bottom)); }
+.sheet .sbody .inner, .sheet .shead{ max-width:540px; margin:0 auto; width:100%; }
+.iconbtn{
+  appearance:none; border:0; background:var(--surface2); border-radius:999px;
+  width:44px; height:44px; min-width:44px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+  color:var(--ink);
+}
+.iconbtn svg{ width:20px; height:20px }
+
+/* Detail */
+.detailhead{ display:flex; gap:16px; margin-bottom:16px; }
+.detailhead .cover{ width:110px; }
+.detailhead h2{ margin:2px 0 2px; font-family:"Fraunces",Georgia,serif; font-size:21px; font-weight:600; line-height:1.22; text-wrap:balance; }
+.metalist{ display:flex; flex-direction:column; gap:0; }
+.metalist .mrow{ display:flex; justify-content:space-between; gap:14px; padding:9px 2px; border-bottom:1px solid var(--line); font-size:14.5px; }
+.metalist .mrow:last-child{ border-bottom:0 }
+.metalist .k{ color:var(--muted); }
+.metalist .v{ font-weight:600; text-align:right; font-variant-numeric:tabular-nums; }
+
+/* Sterne */
+.stars{ display:inline-flex; gap:2px; }
+.stars button{ appearance:none; background:none; border:0; padding:8px 5px; cursor:pointer; min-width:38px; min-height:44px; }
+.stars svg{ width:28px; height:28px; color:var(--line); }
+.stars .on svg{ color:var(--gold); }
+.stars.readonly svg{ width:18px; height:18px }
+
+/* Chat */
+.chatlog{ display:flex; flex-direction:column; gap:10px; padding-bottom:8px; }
+.msg{ max-width:82%; padding:10px 14px; border-radius:18px; font-size:15px; line-height:1.5; white-space:pre-wrap; overflow-wrap:break-word; }
+.msg.user{ align-self:flex-end; background:var(--ink); color:var(--bg); border-bottom-right-radius:6px; }
+.msg.bot{ align-self:flex-start; background:var(--surface); border:1px solid var(--line); border-bottom-left-radius:6px; }
+.msg.bot.thinking{ color:var(--muted); font-style:italic }
+.chatbar{
+  position:sticky; bottom:0; display:flex; gap:8px; padding:10px 0 0;
+  background:linear-gradient(to top, var(--bg) 70%, transparent);
+}
+.chatbar textarea{ flex:1; border-radius:18px; min-height:44px; max-height:120px; padding:10px 14px; }
+.spoilerbar{
+  display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600;
+  background:color-mix(in srgb, var(--lilac) 12%, transparent); color:var(--lilac-text);
+  border-radius:12px; padding:9px 12px; margin-bottom:12px;
+}
+.spoilerbar svg{ width:17px; height:17px; flex-shrink:0 }
+
+/* Statistik */
+.baryear{ display:flex; align-items:center; gap:10px; margin-bottom:7px; }
+.baryear .yl{ width:44px; font-size:13px; font-weight:700; color:var(--muted); font-variant-numeric:tabular-nums; }
+.baryear .bar{ height:20px; border-radius:6px; background:linear-gradient(90deg,var(--lilac),var(--rose)); min-width:4px; }
+.baryear .n{ font-size:13px; font-weight:700; font-variant-numeric:tabular-nums; }
+.statgrid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
+.stat{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px 10px; text-align:center; }
+.stat b{ display:block; font-family:"Fraunces",Georgia,serif; font-size:24px; font-weight:600; font-variant-numeric:tabular-nums; }
+.stat span{ font-size:11.5px; color:var(--muted); font-weight:600; }
+
+/* Fragen-Flow */
+.flowstep{ font-size:12.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--apricot-text); margin-bottom:8px; }
+.flowq{ font-family:"Fraunces",Georgia,serif; font-size:21px; font-weight:600; line-height:1.3; margin:0 0 14px; text-wrap:balance; }
+.flowdots{ display:flex; gap:5px; margin-bottom:18px; }
+.flowdots i{ height:4px; flex:1; border-radius:99px; background:var(--surface2); }
+.flowdots i.on{ background:var(--apricot); }
+
+/* Empty-States */
+.empty{ text-align:center; padding:44px 22px; color:var(--muted); }
+.empty .big{ font-size:40px; margin-bottom:8px; }
+.empty h3{ font-family:"Fraunces",Georgia,serif; color:var(--ink); font-weight:600; margin:0 0 6px; font-size:18px; }
+
+/* FAB */
+.fab{
+  position:fixed; right:calc(50% - 270px + 16px); bottom:calc(86px + env(safe-area-inset-bottom)); z-index:35;
+  width:56px; height:56px; border-radius:999px; border:0; cursor:pointer;
+  background:var(--ink); color:var(--bg); box-shadow:var(--shadow);
+  display:flex; align-items:center; justify-content:center;
+}
+@media (max-width:571px){ .fab{ right:16px; } }
+.fab svg{ width:26px; height:26px }
+
+/* Toast */
+#toast{
+  position:fixed; left:50%; transform:translateX(-50%); bottom:calc(100px + env(safe-area-inset-bottom));
+  background:var(--ink); color:var(--bg); font-size:14px; font-weight:600;
+  padding:10px 18px; border-radius:999px; z-index:99; box-shadow:var(--shadow);
+  opacity:0; pointer-events:none; transition:opacity .2s;
+  max-width:88vw; text-align:center;
+}
+#toast.show{ opacity:1 }
+
+/* KI-Text */
+.aitext{ font-size:15px; line-height:1.6; }
+.aitext p{ margin:0 0 10px }
+.aitext strong{ font-weight:700 }
+.aitext ol,.aitext ul{ padding-left:20px; margin:0 0 10px }
+.aitext li{ margin-bottom:8px }
+
+.reflection-a{ background:var(--surface2); border-radius:12px; padding:10px 13px; font-size:14.5px; margin:4px 0 14px; white-space:pre-wrap; }
+.reflection-q{ font-weight:700; font-size:13.5px; }
+
+.intro{
+  background:linear-gradient(135deg,
+    color-mix(in srgb, var(--apricot) 12%, var(--surface)),
+    color-mix(in srgb, var(--lilac) 12%, var(--surface)));
+}
+a{ color:var(--lilac-text); }
+</style>
+<!-- A:HEAD:END -->
+</head>
+<body>
+<!-- A:BODY:START -->
+<div id="app">
+  <header class="app">
+    <div>
+      <h1 id="apptitle">Eselsohr</h1>
+      <div class="sub" id="appsub">Dein Bücherregal</div>
+    </div>
+    <button class="iconbtn" data-action="add-book" aria-label="Buch hinzufügen" title="Buch hinzufügen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+  </header>
+  <main id="view" aria-live="polite"></main>
+</div>
+
+<button class="fab" data-action="add-book" aria-label="Buch hinzufügen">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+
+<nav class="tabs" aria-label="Hauptnavigation">
+  <div class="inner">
+    <button data-action="tab" data-tab="reading" aria-label="Aktuelle Bücher">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z"/></svg>
+      <span>Aktuell</span>
+    </button>
+    <button data-action="tab" data-tab="shelf" aria-label="Bücherregal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h4v18H4zM10 3h4v18h-4z"/><path d="m16.5 4.5 3.8 1-4.5 16.8-3.8-1z"/></svg>
+      <span>Regal</span>
+    </button>
+    <button data-action="tab" data-tab="discover" aria-label="Entdecken und Wunschliste">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg>
+      <span>Entdecken</span>
+    </button>
+    <button data-action="tab" data-tab="more" aria-label="Statistik und Einstellungen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+      <span>Mehr</span>
+    </button>
+  </div>
+</nav>
+
+<div id="overlays"></div>
+<div id="toast" role="status"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   Eselsohr – dein digitales Bücherregal
+   Daten bleiben lokal auf dem Gerät (localStorage). Optional lässt sich
+   ein Claude-API-Schlüssel hinterlegen, der Chat, Fragenkatalog, Fakten
+   und Empfehlungen mit echter KI betreibt (außerhalb der Artifact-
+   Sandbox; dort greifen die lokalen Begleiter-Funktionen).
+   ===================================================================== */
+
+const DB_KEY = 'eselsohr.v1';
+
+const GENRES = ['Roman','Krimi & Thriller','Fantasy','Science-Fiction','Liebesroman','Historischer Roman','Sachbuch','Biografie','Ratgeber','Klassiker','Jugendbuch','Horror','Kurzgeschichten','Lyrik','Sonstiges'];
+const FICTION = new Set(['Roman','Krimi & Thriller','Fantasy','Science-Fiction','Liebesroman','Historischer Roman','Klassiker','Jugendbuch','Horror','Kurzgeschichten']);
+const LANGS = ['Deutsch','Englisch','Französisch','Spanisch','Italienisch','Andere'];
+const MEDIA = {
+  print:  { label:'Physisch',        icon:'📖' },
+  kindle: { label:'Kindle / E-Book', icon:'📱' },
+  audio:  { label:'Audible / Hörbuch', icon:'🎧' },
+};
+const ACCENTS = ['apricot','lilac','gold','rose'];
+
+/* ---------- Zustand ---------- */
+let state = load();
+const ui = {
+  tab: 'reading',
+  shelf: { q:'', year:'', genre:'', lang:'', medium:'', series:'', sort:'year-desc' },
+  deleteArmed: null,
+};
+
+function load(){
+  try{
+    const raw = localStorage.getItem(DB_KEY);
+    if(raw){ const s = JSON.parse(raw); if(s && Array.isArray(s.books)) return s; }
+  }catch(e){}
+  return { books: [], settings: {}, recs: [] };
+}
+function save(){
+  try{ localStorage.setItem(DB_KEY, JSON.stringify(state)); }
+  catch(e){ toast('Speichern fehlgeschlagen – Speicher voll? Exportiere ein Backup.'); }
+}
+
+/* ---------- Helfer ---------- */
+const $  = s => document.querySelector(s);
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function uid(){ return (crypto.randomUUID ? crypto.randomUUID() : 'id-'+Date.now()+'-'+Math.random().toString(36).slice(2)); }
+function todayISO(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function fmtDate(iso){ if(!iso) return '–'; try{ return new Intl.DateTimeFormat('de-DE',{day:'numeric',month:'short',year:'numeric'}).format(new Date(iso+'T12:00:00')); }catch(e){ return iso; } }
+function daysBetween(a,b){ try{ return Math.max(0, Math.round((new Date(b)-new Date(a))/86400000)); }catch(e){ return null; } }
+function getBook(id){ return state.books.find(b => b.id === id); }
+function hashN(str, mod){ let h=0; for(const c of String(str)) h=(h*31 + c.charCodeAt(0))>>>0; return h % mod; }
+function readYearOf(b){
+  if(b.endDate) return new Date(b.endDate+'T12:00:00').getFullYear();
+  if(b.readYear) return Number(b.readYear);
+  return null;
+}
+function genreAccent(g){ return ACCENTS[hashN(g||'x', ACCENTS.length)]; }
+function toast(msg){
+  const t=$('#toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'), 2600);
+}
+function progressPct(b){
+  const p=b.progress; if(!p) return null;
+  if(p.type==='percent' && p.current!=null) return Math.min(100, Number(p.current));
+  if(p.total && p.current!=null) return Math.min(100, Math.round(100*Number(p.current)/Number(p.total)));
+  return null;
+}
+function progressLabel(b){
+  const p=b.progress; if(!p || p.current==null || p.current==='') return 'Noch kein Fortschritt eingetragen';
+  const unit = p.type==='chapter' ? 'Kapitel' : (p.type==='percent' ? '' : 'Seite');
+  if(p.type==='percent') return `${p.current} % gelesen`;
+  return p.total ? `${unit} ${p.current} von ${p.total}` : `${unit} ${p.current}`;
+}
+function boundaryLabel(b){
+  const p=b.progress;
+  if(!p || p.current==null || p.current==='') return 'Anfang des Buches';
+  if(p.type==='percent') return `${p.current} % des Buches`;
+  return (p.type==='chapter'?'Kapitel ':'Seite ')+p.current+(p.total?` von ${p.total}`:'');
+}
+
+/* ---------- Cover ---------- */
+function coverHTML(b, extra=''){
+  if(b.cover) return `<div class="cover ${extra}"><img src="${b.cover}" alt="Cover von ${esc(b.title)}"></div>`;
+  const pair = [['#C96F45','#BC5E82'],['#8168AC','#BC5E82'],['#B8862F','#C96F45'],['#8168AC','#5E7ABC']][hashN(b.title||'?',4)];
+  const initial = (b.title||'?').trim().charAt(0).toUpperCase();
+  return `<div class="cover ${extra}" style="background:linear-gradient(150deg, ${pair[0]}, ${pair[1]})">
+    <div class="ph"><span>${esc(initial)}<small>${esc((b.author||'').split(' ').slice(-1)[0]||'')}</small></span></div>
+  </div>`;
+}
+function resizeImage(file, cb){
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 440;
+      const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width*scale); c.height = Math.round(img.height*scale);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      cb(c.toDataURL('image/jpeg', 0.82));
+    };
+    img.onerror = () => toast('Bild konnte nicht gelesen werden.');
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+/* =====================================================================
+   KI-Anbindung (optional, per API-Schlüssel in den Einstellungen)
+   ===================================================================== */
+function aiAvailable(){ return !!(state.settings && state.settings.apiKey); }
+async function aiCall(messages, system, maxTokens=1200){
+  const key = state.settings.apiKey;
+  if(!key) throw new Error('kein-schluessel');
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{
+      'content-type':'application/json',
+      'x-api-key': key,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true',
+    },
+    body: JSON.stringify({
+      model: state.settings.model || 'claude-sonnet-5',
+      max_tokens: maxTokens,
+      system: system || undefined,
+      messages,
+    }),
+  });
+  if(!res.ok) throw new Error('api-'+res.status);
+  const data = await res.json();
+  return (data.content||[]).map(c => c.text || '').join('');
+}
+function aiBlockedHint(){
+  return 'Die KI-Verbindung hat nicht geklappt. In der geschützten Artifact-Ansicht sind externe Verbindungen gesperrt – dort arbeitet Eselsohr im lokalen Begleiter-Modus. Als eigenständig installierte App (siehe README) funktioniert die KI mit deinem API-Schlüssel.';
+}
+/* Sehr kleine Markdown-Aufbereitung für KI-Antworten */
+function md(t){
+  let h = esc(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/(https?:\/\/[^\s<]+[^\s<.,)])/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');
+  const lines = h.split(/\n/); let out=[], list=null;
+  for(const ln of lines){
+    const m = ln.match(/^\s*(\d+)[.)]\s+(.*)/);
+    const b = ln.match(/^\s*[-•]\s+(.*)/);
+    if(m){ if(list!=='ol'){ if(list)out.push(`</${list}>`); out.push('<ol>'); list='ol'; } out.push('<li>'+m[2]+'</li>'); }
+    else if(b){ if(list!=='ul'){ if(list)out.push(`</${list}>`); out.push('<ul>'); list='ul'; } out.push('<li>'+b[1]+'</li>'); }
+    else { if(list){ out.push(`</${list}>`); list=null; } if(ln.trim()) out.push('<p>'+ln+'</p>'); }
+  }
+  if(list) out.push(`</${list}>`);
+  return out.join('');
+}
+
+/* =====================================================================
+   Fragen-Engine: persönlicher Reflexions-Katalog (lokal, immer verfügbar)
+   ===================================================================== */
+function buildQuestions(b){
+  const qs = [];
+  const genre = b.genre || 'Sonstiges';
+  const fiction = FICTION.has(genre);
+
+  qs.push('Worum ging es in diesem Buch für dich – jenseits der reinen Handlung?');
+  qs.push('Was nimmst du aus diesem Buch für dich und deine Zukunft mit?');
+  qs.push('Welche Szene oder Stelle wird dir im Gedächtnis bleiben – und warum gerade die?');
+
+  if(fiction){
+    qs.push('Aus welcher Erzählperspektive wird erzählt – und wie hat das deine Nähe zu den Figuren geprägt?');
+    qs.push('Welche Figur hat dich am meisten beschäftigt, positiv oder negativ?');
+  } else {
+    qs.push('Welche zwei, drei Erkenntnisse willst du dir unbedingt merken?');
+    qs.push('Wo warst du anderer Meinung als der Autor bzw. die Autorin – und warum?');
+  }
+
+  const special = {
+    'Krimi & Thriller':'War die Auflösung für dich stimmig und fair angelegt? Hattest du unterwegs einen Verdacht?',
+    'Fantasy':'Wie hat dich die Welt des Buches überzeugt – was fandest du besonders originell?',
+    'Science-Fiction':'Welche Idee des Buches hat dich am meisten zum Nachdenken gebracht – und wirkt sie plausibel?',
+    'Liebesroman':'Was hat die Beziehung(en) für dich glaubwürdig gemacht – oder eben nicht?',
+    'Historischer Roman':'Was hast du über die Zeit gelernt, in der das Buch spielt?',
+    'Horror':'Womit hat dich das Buch am meisten gepackt oder verstört – Atmosphäre, Bilder, Ideen?',
+    'Klassiker':'Warum, glaubst du, hat dieses Buch überdauert? Wie liest es sich heute für dich?',
+    'Biografie':'Was hat dich an diesem Leben überrascht – und was davon berührt dein eigenes?',
+    'Ratgeber':'Was willst du ganz konkret als Erstes ausprobieren oder umsetzen?',
+    'Sachbuch':'Wie hat das Buch deinen Blick auf das Thema verändert?',
+    'Jugendbuch':'Was macht dieses Buch für dich besonders – auch im Vergleich zu „Erwachsenen“-Büchern?',
+    'Kurzgeschichten':'Welche Geschichte ragt für dich heraus – und was verbindet die Sammlung?',
+    'Lyrik':'Welche Zeilen möchtest du dir merken – laut gelesen oder still?',
+  };
+  if(special[genre]) qs.push(special[genre]);
+
+  if(b.medium==='audio') qs.push('Wie hat die Stimme des Sprechers bzw. der Sprecherin das Buch für dich geprägt?');
+  else if(b.medium==='kindle') qs.push('Hast du Stellen markiert? Welche würdest du jemandem laut vorlesen?');
+  else qs.push('Wirst du das Buch behalten, verleihen oder weitergeben – und wem würdest du es empfehlen?');
+
+  if(b.series && b.series.name){
+    qs.push(`Wie fügt sich dieser Band in die Reihe „${b.series.name}“ ein – und freust du dich auf den nächsten?`);
+  } else if(b.startDate && b.endDate){
+    const d = daysBetween(b.startDate, b.endDate);
+    if(d!=null && d<=7) qs.push(`Du hast das Buch in nur ${d===0?'einem Tag':d+' Tagen'} gelesen – was hat dich so hineingezogen?`);
+    else if(d!=null && d>60) qs.push('Du warst lange mit diesem Buch unterwegs. Was hat dich immer wieder zurückkehren lassen?');
+    else qs.push('Was hat dir an diesem Buch besonders gut gefallen – und was hätte es nicht gebraucht?');
+  } else {
+    qs.push('Was hat dir besonders gut gefallen – und was hätte es nicht gebraucht?');
+  }
+  return qs.slice(0, 8);
+}
+async function personalizedQuestions(b){
+  if(aiAvailable()){
+    try{
+      const raw = await aiCall(
+        [{role:'user', content:
+          `Erstelle einen persönlichen Reflexions-Fragenkatalog (genau 7 Fragen) für jemanden, der soeben das Buch "${b.title}"${b.author?` von ${b.author}`:''} beendet hat. Genre: ${b.genre||'unbekannt'}. Gelesen als: ${MEDIA[b.medium]?.label||'unbekannt'}. Sprache des Buches: ${b.language||'unbekannt'}.${b.series&&b.series.name?` Das Buch ist Band ${b.series.volume||'?'} der Reihe "${b.series.name}".`:''}
+Die Fragen sollen in 5–10 Minuten beantwortbar sein, auf Deutsch und in Du-Form. Beziehe dich, wo du das Buch kennst, konkret auf seine Themen und Machart. Enthalte mindestens: eine Frage zu dem, was man für die Zukunft mitnimmt; eine zu einem besonderen Moment; eine zur Erzählperspektive bzw. Machart; eine genrespezifische Frage.
+Antworte NUR mit einem JSON-Array aus 7 Strings, ohne weiteren Text.`}],
+        'Du bist ein einfühlsamer Lesecoach. Antworte ausschließlich mit validem JSON.',
+        900
+      );
+      const m = raw.match(/\[[\s\S]*\]/);
+      if(m){
+        const arr = JSON.parse(m[0]);
+        if(Array.isArray(arr) && arr.length>=5) return { qs: arr.slice(0,8).map(String), ai:true };
+      }
+    }catch(e){ /* lokal weitermachen */ }
+  }
+  return { qs: buildQuestions(b), ai:false };
+}
+
+/* =====================================================================
+   Lese-Begleiter (Chat ohne KI): Reflexionsfragen je nach Fortschritt
+   ===================================================================== */
+function companionReply(b, userText){
+  const pct = progressPct(b);
+  const early = pct==null || pct < 30, late = pct!=null && pct >= 70;
+  const pools = {
+    question: [
+      'Gute Frage! Ohne KI-Verbindung kann ich inhaltlich leider nicht antworten – aber schreib gern auf, was du selbst vermutest. Gedanken sortieren hilft oft mehr als eine schnelle Antwort.',
+      'Das kann ich im Begleiter-Modus nicht beantworten. Aber: Was wäre deine Theorie? Notiere sie – beim Weiterlesen macht es doppelt Spaß zu prüfen, ob du richtig lagst.',
+    ],
+    early: [
+      'Wie fühlt sich der Einstieg an – bist du schon richtig „drin“ in der Geschichte?',
+      'Welche Erwartungen hast du gerade an das Buch? Schreib sie ruhig auf – später ist es spannend zu vergleichen.',
+      'Gibt es schon eine Figur oder Stimme, die dich neugierig macht?',
+      'Wie liest sich der Ton des Buches für dich – eher warm, kühl, verspielt, ernst?',
+    ],
+    mid: [
+      'Spannender Gedanke! Was hat diese Stelle bei dir ausgelöst?',
+      'Wenn du dem Autor bzw. der Autorin gerade eine Frage stellen könntest – welche wäre das?',
+      'Merkst du, wie sich deine Sicht auf eine Figur verändert? Woran liegt das?',
+      'Gab es zuletzt einen Satz, den du dir am liebsten markieren würdest?',
+      'Was glaubst du, wohin sich die Geschichte entwickelt? Deine Vermutung bleibt hier spoilersicher notiert.',
+    ],
+    late: [
+      'Der Endspurt! Zieht das Buch jetzt an oder lässt es dich bewusst langsam gehen?',
+      'Welche Fragen muss das Ende für dich unbedingt noch beantworten?',
+      'Wie soll es für deine Lieblingsfigur ausgehen – und wie, fürchtest du, geht es wirklich aus?',
+    ],
+  };
+  b._comp = (b._comp||0) + 1;
+  if(/\?\s*$/.test(userText.trim())) return pools.question[b._comp % pools.question.length];
+  const pool = early ? pools.early : (late ? pools.late : pools.mid);
+  return pool[b._comp % pool.length];
+}
+
+/* =====================================================================
+   Rendering: Tabs
+   ===================================================================== */
+const TABTITLES = {
+  reading:['Eselsohr','Was du gerade liest'],
+  shelf:['Bücherregal','Alles, was du gelesen hast'],
+  discover:['Entdecken','Wunschliste & Empfehlungen'],
+  more:['Mehr','Statistik & Einstellungen'],
+};
+function renderApp(){
+  const [t, s] = TABTITLES[ui.tab];
+  $('#apptitle').textContent = t; $('#appsub').textContent = s;
+  document.querySelectorAll('nav.tabs button').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === ui.tab));
+  document.querySelector('.fab').style.display = (ui.tab==='reading'||ui.tab==='shelf') ? 'flex' : 'none';
+  const v = $('#view');
+  if(ui.tab==='reading') v.innerHTML = viewReading();
+  else if(ui.tab==='shelf'){ v.innerHTML = viewShelf(); bindShelf(); }
+  else if(ui.tab==='discover'){ v.innerHTML = viewDiscover(); bindDiscover(); }
+  else { v.innerHTML = viewMore(); bindMore(); }
+}
+
+/* ---------- Tab: Aktuell ---------- */
+function viewReading(){
+  const cur = state.books.filter(b => b.status==='reading')
+    .sort((a,b) => (b.startDate||'').localeCompare(a.startDate||''));
+  let intro = '';
+  if(!state.settings.seenIntro){
+    intro = `<div class="card intro">
+      <h2 class="section" style="margin-top:0">Willkommen bei Eselsohr 🔖</h2>
+      <p class="hint" style="margin:0 0 10px">Dein persönliches Bücherregal: Lege Bücher an (auch nachträglich mit Lesejahr), verbinde Reihen, beantworte nach dem Beenden einen persönlichen Fragenkatalog und unterhalte dich spoilerfrei über dein Buch. Alles bleibt privat auf deinem Gerät – ganz ohne Konto.</p>
+      <div class="row" style="flex-wrap:wrap">
+        <button class="btn accent sm" data-action="add-book">Erstes Buch anlegen</button>
+        <button class="btn ghost sm" data-action="intro-dismiss">Ausblenden</button>
+      </div>
+    </div>`;
+  }
+  if(!cur.length){
+    return intro + `<div class="empty">
+      <div class="big">🔖</div>
+      <h3>Gerade kein Buch angefangen?</h3>
+      <p>Lege dein aktuelles Buch an – du kannst auch mehrere parallel lesen.</p>
+      <button class="btn primary" data-action="add-book">Buch anlegen</button>
+    </div>`;
+  }
+  return intro + `<div class="stack">` + cur.map(b => {
+    const pct = progressPct(b);
+    return `<article class="card readcard">
+      <button class="shelfitem" data-action="open-book" data-id="${b.id}" aria-label="${esc(b.title)} öffnen" style="width:84px">${coverHTML(b)}</button>
+      <div class="grow">
+        <h3 class="serif">${esc(b.title)}</h3>
+        <div class="author">${esc(b.author||'')}</div>
+        <div class="row" style="flex-wrap:wrap;gap:6px">
+          ${b.genre?`<span class="chip ${genreAccent(b.genre)}">${esc(b.genre)}</span>`:''}
+          <span class="chip">${MEDIA[b.medium]?.icon||''} ${MEDIA[b.medium]?.label||''}</span>
+          ${b.series&&b.series.name?`<span class="chip lilac">Reihe · Bd. ${esc(String(b.series.volume||'?'))}</span>`:''}
+        </div>
+        ${pct!=null?`<div class="progress" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>`:'<div style="height:8px"></div>'}
+        <div class="plabel">${esc(progressLabel(b))}${b.startDate?` · seit ${fmtDate(b.startDate)}`:''}</div>
+        <div class="acts">
+          <button class="btn sm" data-action="edit-progress" data-id="${b.id}">Fortschritt</button>
+          <button class="btn sm" data-action="open-chat" data-id="${b.id}">💬 Chat</button>
+          <button class="btn sm accent" data-action="start-finish" data-id="${b.id}">Beenden ✓</button>
+        </div>
+      </div>
+    </article>`;
+  }).join('') + `</div>`;
+}
+
+/* ---------- Tab: Regal ---------- */
+function shelfBooks(){
+  const f = ui.shelf;
+  let list = state.books.filter(b => b.status==='finished');
+  if(f.q){
+    const q = f.q.toLowerCase();
+    list = list.filter(b =>
+      (b.title||'').toLowerCase().includes(q) ||
+      (b.author||'').toLowerCase().includes(q) ||
+      (b.genre||'').toLowerCase().includes(q) ||
+      (b.series&&b.series.name||'').toLowerCase().includes(q) ||
+      String(readYearOf(b)||'').includes(q));
+  }
+  if(f.year)   list = list.filter(b => String(readYearOf(b)||'') === f.year);
+  if(f.genre)  list = list.filter(b => b.genre === f.genre);
+  if(f.lang)   list = list.filter(b => b.language === f.lang);
+  if(f.medium) list = list.filter(b => b.medium === f.medium);
+  if(f.series) list = list.filter(b => b.series && b.series.name === f.series);
+  const sorts = {
+    'year-desc': (a,b) => (readYearOf(b)||0)-(readYearOf(a)||0) || (b.endDate||'').localeCompare(a.endDate||''),
+    'year-asc':  (a,b) => (readYearOf(a)||9999)-(readYearOf(b)||9999) || (a.endDate||'').localeCompare(b.endDate||''),
+    'title':     (a,b) => (a.title||'').localeCompare(b.title||'', 'de'),
+    'genre':     (a,b) => (a.genre||'').localeCompare(b.genre||'','de') || (a.title||'').localeCompare(b.title||'','de'),
+    'series':    (a,b) => ((a.series&&a.series.name)||'ŽŽ').localeCompare((b.series&&b.series.name)||'ŽŽ','de') || (Number(a.series&&a.series.volume)||0)-(Number(b.series&&b.series.volume)||0),
+    'added':     (a,b) => (b.addedAt||'').localeCompare(a.addedAt||''),
+  };
+  return list.sort(sorts[f.sort] || sorts['year-desc']);
+}
+function viewShelf(){
+  const finished = state.books.filter(b => b.status==='finished');
+  const years  = [...new Set(finished.map(readYearOf).filter(Boolean))].sort((a,b)=>b-a);
+  const gs     = [...new Set(finished.map(b=>b.genre).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'de'));
+  const langs  = [...new Set(finished.map(b=>b.language).filter(Boolean))];
+  const series = [...new Set(finished.map(b=>b.series&&b.series.name).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'de'));
+  const list = shelfBooks();
+  const f = ui.shelf;
+  const opt = (v,l,cur) => `<option value="${esc(v)}"${v===cur?' selected':''}>${esc(l)}</option>`;
+
+  const controls = `
+  <div class="searchwrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+    <input class="f" id="shelf-q" type="search" placeholder="Titel, Autor, Genre, Reihe oder Jahr…" value="${esc(f.q)}" aria-label="Regal durchsuchen">
+  </div>
+  <div class="filters">
+    <select id="shelf-year" aria-label="Nach Lesejahr filtern">${opt('','Jahr: alle',f.year)}${years.map(y=>opt(String(y),String(y),f.year)).join('')}</select>
+    <select id="shelf-genre" aria-label="Nach Genre filtern">${opt('','Genre: alle',f.genre)}${gs.map(g=>opt(g,g,f.genre)).join('')}</select>
+    <select id="shelf-medium" aria-label="Nach Medium filtern">${opt('','Medium: alle',f.medium)}${Object.entries(MEDIA).map(([k,m])=>opt(k,m.label,f.medium)).join('')}</select>
+    ${langs.length>1?`<select id="shelf-lang" aria-label="Nach Sprache filtern">${opt('','Sprache: alle',f.lang)}${langs.map(l=>opt(l,l,f.lang)).join('')}</select>`:''}
+    ${series.length?`<select id="shelf-series" aria-label="Nach Reihe filtern">${opt('','Reihe: alle',f.series)}${series.map(s=>opt(s,s,f.series)).join('')}</select>`:''}
+    <select id="shelf-sort" aria-label="Sortierung">
+      ${opt('year-desc','Neueste zuerst',f.sort)}${opt('year-asc','Älteste zuerst',f.sort)}${opt('title','Titel A–Z',f.sort)}${opt('genre','Nach Genre',f.sort)}${opt('series','Nach Reihe',f.sort)}${opt('added','Zuletzt hinzugefügt',f.sort)}
+    </select>
+  </div>`;
+
+  if(!finished.length){
+    return controls + `<div class="empty">
+      <div class="big">📚</div>
+      <h3>Dein Regal ist noch leer</h3>
+      <p>Trage Bücher nach, die du früher gelesen hast – mit dem Lesejahr. Oder beende dein aktuelles Buch.</p>
+      <button class="btn primary" data-action="add-book" data-preset="finished">Gelesenes Buch nachtragen</button>
+    </div>`;
+  }
+  const grid = list.length ? `<div class="shelfgrid">` + list.map(b => {
+    const y = readYearOf(b);
+    return `<button class="shelfitem" data-action="open-book" data-id="${b.id}">
+      <div style="position:relative">
+        ${coverHTML(b)}
+        ${y?`<span class="badge-year">${y}</span>`:''}
+        ${b.series&&b.series.name?`<span class="badge-series">Bd. ${esc(String(b.series.volume||'?'))}</span>`:''}
+      </div>
+      <div class="t">${esc(b.title)}</div>
+      <div class="y">${esc(b.author||'')}</div>
+    </button>`;
+  }).join('') + `</div>` : `<div class="empty"><p>Kein Buch passt zu deinen Filtern.</p></div>`;
+  return controls + `<div class="hint small" style="margin:0 2px 10px">${list.length} ${list.length===1?'Buch':'Bücher'}</div>` + grid;
+}
+function bindShelf(){
+  const set = (id, key) => { const el = $('#'+id); if(el) el.addEventListener('change', () => { ui.shelf[key]=el.value; renderApp(); }); };
+  set('shelf-year','year'); set('shelf-genre','genre'); set('shelf-medium','medium');
+  set('shelf-lang','lang'); set('shelf-series','series'); set('shelf-sort','sort');
+  const q = $('#shelf-q');
+  if(q){
+    q.addEventListener('input', () => {
+      ui.shelf.q = q.value;
+      clearTimeout(q._t);
+      q._t = setTimeout(() => { const pos=q.selectionStart; renderApp(); const nq=$('#shelf-q'); if(nq){ nq.focus(); nq.setSelectionRange(pos,pos);} }, 250);
+    });
+  }
+}
+
+/* ---------- Tab: Entdecken ---------- */
+function viewDiscover(){
+  const wish = state.books.filter(b => b.status==='wishlist').sort((a,b)=>(b.addedAt||'').localeCompare(a.addedAt||''));
+  const finished = state.books.filter(b=>b.status==='finished');
+  const topGenres = Object.entries(finished.reduce((m,b)=>{ if(b.genre) m[b.genre]=(m[b.genre]||0)+1; return m; },{}))
+    .sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]);
+
+  const wishHTML = wish.length ? `<div class="stack">` + wish.map(b => `
+    <article class="card readcard" style="align-items:center">
+      <button class="shelfitem" data-action="open-book" data-id="${b.id}" style="width:64px">${coverHTML(b)}</button>
+      <div class="grow">
+        <h3 class="serif" style="font-size:16px">${esc(b.title)}</h3>
+        <div class="author">${esc(b.author||'')}</div>
+        ${b.notes?`<div class="hint small" style="margin-top:2px">${esc(b.notes)}</div>`:''}
+      </div>
+      <button class="btn sm accent" data-action="mark-read-now" data-id="${b.id}">Jetzt lesen</button>
+    </article>`).join('') + `</div>`
+    : `<p class="hint">Noch keine Wünsche notiert. Füge Bücher hinzu, die du als Nächstes lesen möchtest.</p>`;
+
+  const recsHTML = (state.recs||[]).length ? `<div class="stack" style="margin-top:10px">` + state.recs.map((r,i)=>`
+    <article class="card">
+      <div class="row" style="align-items:flex-start">
+        <div class="grow">
+          <strong class="serif" style="font-size:16px">${esc(r.titel)}</strong>
+          <div class="hint small">${esc(r.autor||'')}</div>
+          <p class="small" style="margin:6px 0 0">${esc(r.warum||'')}</p>
+        </div>
+        <button class="btn sm" data-action="add-rec" data-id="${i}" aria-label="Auf die Wunschliste">♡ Merken</button>
+      </div>
+    </article>`).join('') + `</div>` : '';
+
+  return `
+  <h2 class="section">Wunschliste & Leseliste <span class="chip rose" style="vertical-align:2px">${wish.length}</span></h2>
+  <div class="card" style="margin-bottom:10px">
+    <form id="wishform" class="row">
+      <input class="f grow" name="title" placeholder="Buch für später notieren…" aria-label="Titel für die Wunschliste" required>
+      <button class="btn sm primary" type="submit">Merken</button>
+    </form>
+    <div class="hint small" style="margin-top:8px">Tipp: Über das große Plus kannst du Wunschbücher auch mit Cover & Details anlegen.</div>
+  </div>
+  ${wishHTML}
+  <hr class="sep">
+  <h2 class="section">Empfehlungen für dich</h2>
+  <div class="card">
+    ${finished.length||state.books.some(b=>b.status==='reading') ? `
+      <p class="hint" style="margin:0 0 10px">${topGenres.length?`Du liest gern <strong>${topGenres.map(esc).join(', ')}</strong>. `:''}Eselsohr schlägt dir passende Bücher vor – auf Basis deines Regals und deiner aktuellen Lektüre.</p>
+      <button class="btn primary block" data-action="gen-recs" id="recbtn">✨ Empfehlungen erstellen</button>
+      ${!aiAvailable()?`<p class="hint small" style="margin:10px 0 0">Dafür braucht Eselsohr die KI-Verbindung (Einstellungen → KI). Ohne sie kannst du deine Wunschliste natürlich trotzdem pflegen.</p>`:''}
+    ` : `<p class="hint" style="margin:0">Sobald ein paar Bücher in deinem Regal stehen, kann Eselsohr einschätzen, was zu dir passt.</p>`}
+  </div>
+  ${recsHTML}`;
+}
+function bindDiscover(){
+  const f = $('#wishform');
+  if(f) f.addEventListener('submit', e => {
+    e.preventDefault();
+    const t = f.title.value.trim(); if(!t) return;
+    state.books.push({ id:uid(), title:t, status:'wishlist', addedAt:new Date().toISOString() });
+    save(); toast('Auf die Wunschliste gesetzt 🔖'); renderApp();
+  });
+}
+async function generateRecs(){
+  if(!aiAvailable()){ toast('Bitte zuerst in den Einstellungen die KI verbinden.'); return; }
+  const btn = $('#recbtn'); if(btn){ btn.disabled=true; btn.textContent='Denke nach…'; }
+  try{
+    const lib = state.books.filter(b=>b.status!=='wishlist').slice(0,60).map(b =>
+      `- "${b.title}"${b.author?` von ${b.author}`:''} (${b.genre||'?'}, ${b.status==='reading'?'lese ich gerade':'gelesen'}${b.rating?`, Bewertung ${b.rating}/5`:''})`).join('\n');
+    const wl = state.books.filter(b=>b.status==='wishlist').map(b=>`- ${b.title}`).join('\n') || '- (leer)';
+    const raw = await aiCall([{role:'user', content:
+`Hier ist mein Bücherregal:\n${lib}\n\nAuf meiner Wunschliste stehen schon:\n${wl}\n\nSchlage mir 5 Bücher vor, die gut zu meinem Geschmack passen und noch NICHT in Regal oder Wunschliste stehen. Antworte NUR mit einem JSON-Array: [{"titel":"…","autor":"…","warum":"…"}] – "warum" in 1–2 persönlichen Sätzen auf Deutsch.`}],
+      'Du bist eine belesene Buchhändlerin mit feinem Gespür. Antworte ausschließlich mit validem JSON.', 1400);
+    const m = raw.match(/\[[\s\S]*\]/);
+    if(!m) throw new Error('parse');
+    state.recs = JSON.parse(m[0]).slice(0,6);
+    save(); renderApp(); toast('Frische Empfehlungen für dich ✨');
+  }catch(e){
+    toast(aiBlockedHint());
+    if(btn){ btn.disabled=false; btn.textContent='✨ Empfehlungen erstellen'; }
+  }
+}
+
+/* ---------- Tab: Mehr ---------- */
+function viewMore(){
+  const fin = state.books.filter(b=>b.status==='finished');
+  const perYear = {};
+  fin.forEach(b => { const y = readYearOf(b); if(y) perYear[y]=(perYear[y]||0)+1; });
+  const years = Object.keys(perYear).map(Number).sort((a,b)=>b-a);
+  const maxY = Math.max(1, ...Object.values(perYear));
+  const genres = Object.entries(fin.reduce((m,b)=>{ if(b.genre) m[b.genre]=(m[b.genre]||0)+1; return m; },{})).sort((a,b)=>b[1]-a[1]);
+  const media = Object.entries(fin.reduce((m,b)=>{ if(b.medium) m[b.medium]=(m[b.medium]||0)+1; return m; },{}));
+  const reading = state.books.filter(b=>b.status==='reading').length;
+  const s = state.settings;
+
+  return `
+  <h2 class="section">Deine Lese-Statistik</h2>
+  <div class="statgrid">
+    <div class="stat"><b>${fin.length}</b><span>gelesen</span></div>
+    <div class="stat"><b>${reading}</b><span>aktuell</span></div>
+    <div class="stat"><b>${state.books.filter(b=>b.status==='wishlist').length}</b><span>Wünsche</span></div>
+  </div>
+  ${years.length?`<div class="card" style="margin-bottom:14px">
+    <div class="eyebrow" style="margin-top:0">Bücher pro Jahr</div>
+    ${years.map(y=>`<div class="baryear"><span class="yl">${y}</span><span class="bar" style="width:${Math.round(78*perYear[y]/maxY)}%"></span><span class="n">${perYear[y]}</span></div>`).join('')}
+  </div>`:''}
+  ${genres.length?`<div class="card" style="margin-bottom:14px">
+    <div class="eyebrow" style="margin-top:0">Deine Genres</div>
+    <div class="row" style="flex-wrap:wrap;gap:6px">${genres.map(([g,n])=>`<span class="chip ${genreAccent(g)}">${esc(g)} · ${n}</span>`).join('')}</div>
+    ${media.length?`<div class="eyebrow">So liest du</div><div class="row" style="flex-wrap:wrap;gap:6px">${media.map(([k,n])=>`<span class="chip">${MEDIA[k]?.icon} ${MEDIA[k]?.label} · ${n}</span>`).join('')}</div>`:''}
+  </div>`:''}
+
+  <h2 class="section">KI-Verbindung</h2>
+  <div class="card" style="margin-bottom:14px">
+    <p class="hint small" style="margin:0 0 10px">Mit einem Claude-API-Schlüssel werden Buch-Chat, Fragenkatalog, 10 Fakten, Community-Stimmen und Empfehlungen von echter KI erstellt. Ohne Schlüssel arbeitet Eselsohr im lokalen Begleiter-Modus. Der Schlüssel bleibt nur auf deinem Gerät.</p>
+    <label class="f"><span class="lab">API-Schlüssel</span>
+      <input class="f" id="set-key" type="password" placeholder="sk-ant-…" value="${esc(s.apiKey||'')}" autocomplete="off">
+    </label>
+    <label class="f"><span class="lab">Modell</span>
+      <select class="f" id="set-model">
+        <option value="claude-sonnet-5"${(!s.model||s.model==='claude-sonnet-5')?' selected':''}>Claude Sonnet 5 (empfohlen)</option>
+        <option value="claude-haiku-4-5-20251001"${s.model==='claude-haiku-4-5-20251001'?' selected':''}>Claude Haiku 4.5 (schnell & günstig)</option>
+        <option value="claude-opus-5"${s.model==='claude-opus-5'?' selected':''}>Claude Opus 5</option>
+      </select>
+    </label>
+    <button class="btn primary" data-action="save-settings">Speichern</button>
+    <span class="chip ${aiAvailable()?'gold':''}" style="margin-left:8px">${aiAvailable()?'KI verbunden':'Begleiter-Modus'}</span>
+  </div>
+
+  <h2 class="section">Datensicherung</h2>
+  <div class="card" style="margin-bottom:14px">
+    <p class="hint small" style="margin:0 0 10px">Deine Bibliothek liegt nur auf diesem Gerät. Sichere sie regelmäßig als Datei – so kannst du sie auch auf ein anderes Gerät mitnehmen.</p>
+    <div class="row" style="flex-wrap:wrap">
+      <button class="btn" data-action="export-backup">Backup exportieren</button>
+      <label class="btn" style="cursor:pointer">Backup importieren<input id="importfile" type="file" accept="application/json,.json" style="display:none"></label>
+    </div>
+  </div>
+
+  <h2 class="section">Über Eselsohr</h2>
+  <div class="card">
+    <p class="hint small" style="margin:0">Eselsohr ist deine private Lese-App – ohne Konto, ohne Tracking. Ein optionales Konto mit Synchronisierung über mehrere Geräte ist für die Zukunft vorgemerkt; die App ist dafür vorbereitet (Export/Import als Brücke). Version 1.0</p>
+  </div>`;
+}
+function bindMore(){
+  const imp = $('#importfile');
+  if(imp) imp.addEventListener('change', () => {
+    const file = imp.files && imp.files[0]; if(!file) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try{
+        const data = JSON.parse(r.result);
+        if(!data || !Array.isArray(data.books)) throw new Error('format');
+        state = data; save(); renderApp(); toast(`Backup geladen: ${data.books.length} Bücher 📚`);
+      }catch(e){ toast('Das ist kein gültiges Eselsohr-Backup.'); }
+    };
+    r.readAsText(file);
+  });
+}
+async function exportBackup(){
+  const data = JSON.stringify(state, null, 2);
+  const filename = 'eselsohr-backup-'+todayISO()+'.json';
+  try{
+    if(window.claude && typeof window.claude.use === 'function'){
+      const dl = await window.claude.use('downloads');
+      if(dl){ await dl.save({ filename, data }); toast('Backup gespeichert 💾'); return; }
+    }
+  }catch(e){ /* Fallback unten */ }
+  try{
+    const url = URL.createObjectURL(new Blob([data], {type:'application/json'}));
+    const a = document.createElement('a'); a.href=url; a.download=filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 4000);
+    toast('Backup wird heruntergeladen 💾');
+  }catch(e){ toast('Export hier nicht möglich.'); }
+}
+
+/* =====================================================================
+   Overlays
+   ===================================================================== */
+function openOverlay(title, bodyHTML, opts={}){
+  const el = document.createElement('div');
+  el.className = 'sheet'; el.setAttribute('role','dialog'); el.setAttribute('aria-label', title);
+  el.innerHTML = `
+    <div class="shead">
+      <button class="iconbtn" data-action="close-overlay" aria-label="Zurück">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg>
+      </button>
+      <h2>${esc(title)}</h2>
+      ${opts.headExtra||''}
+    </div>
+    <div class="sbody"><div class="inner">${bodyHTML}</div></div>`;
+  $('#overlays').appendChild(el);
+  return el;
+}
+function closeOverlay(){
+  const o = $('#overlays'); if(o.lastElementChild) o.lastElementChild.remove();
+  ui.deleteArmed = null;
+  renderApp();
+}
+function closeAllOverlays(){ $('#overlays').innerHTML=''; ui.deleteArmed=null; renderApp(); }
+
+/* ---------- Buch anlegen / bearbeiten ---------- */
+function openBookForm(book, preset){
+  const isNew = !book;
+  const b = book || { status: preset==='finished' ? 'finished' : (preset==='wishlist' ? 'wishlist' : 'reading') };
+  const retro = isNew && b.status==='finished';
+  const seriesNames = [...new Set(state.books.map(x=>x.series&&x.series.name).filter(Boolean))];
+  const yearNow = new Date().getFullYear();
+  const yearOpts = Array.from({length: yearNow-1979}, (_,i)=>yearNow-i);
+
+  const el = openOverlay(isNew ? 'Buch anlegen' : 'Buch bearbeiten', `
+  <form id="bookform" class="stack" novalidate>
+    <div class="card">
+      <div class="row" style="align-items:flex-start">
+        <div style="width:96px">
+          <div id="coverpreview">${coverHTML(b)}</div>
+          <label class="btn sm block" style="margin-top:8px;cursor:pointer">Cover
+            <input id="coverinput" type="file" accept="image/*" style="display:none">
+          </label>
+        </div>
+        <div class="grow">
+          <label class="f"><span class="lab">Titel *</span><input class="f" name="title" required value="${esc(b.title||'')}" placeholder="z. B. Die Mitternachtsbibliothek"></label>
+          <label class="f" style="margin-bottom:0"><span class="lab">Autor·in</span><input class="f" name="author" value="${esc(b.author||'')}" placeholder="z. B. Matt Haig"></label>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="f2">
+        <label class="f"><span class="lab">Sprache</span>
+          <select class="f" name="language">${LANGS.map(l=>`<option${(b.language||'Deutsch')===l?' selected':''}>${l}</option>`).join('')}</select>
+        </label>
+        <label class="f"><span class="lab">Gelesen als</span>
+          <select class="f" name="medium">${Object.entries(MEDIA).map(([k,m])=>`<option value="${k}"${(b.medium||'print')===k?' selected':''}>${m.icon} ${m.label}</option>`).join('')}</select>
+        </label>
+      </div>
+      <label class="f"><span class="lab">Genre</span>
+        <div class="row">
+          <select class="f grow" name="genre">
+            <option value="">– wählen –</option>
+            ${GENRES.map(g=>`<option${b.genre===g?' selected':''}>${g}</option>`).join('')}
+          </select>
+          ${aiAvailable()?`<button type="button" class="btn sm" data-action="suggest-genre" title="Genre von der KI einschätzen lassen">✨</button>`:''}
+        </div>
+        ${!aiAvailable()?'<span class="hint small">Mit KI-Verbindung (unter „Mehr“) schätzt Eselsohr das Genre automatisch ein.</span>':''}
+      </label>
+      <div class="f2" style="margin-bottom:0">
+        <label class="f" style="margin-bottom:0"><span class="lab">Reihe (optional)</span>
+          <input class="f" name="seriesName" list="serieslist" value="${esc(b.series&&b.series.name||'')}" placeholder="z. B. Die Känguru-Werke">
+          <datalist id="serieslist">${seriesNames.map(s=>`<option value="${esc(s)}">`).join('')}</datalist>
+        </label>
+        <label class="f" style="margin-bottom:0"><span class="lab">Band Nr.</span>
+          <input class="f" name="seriesVol" type="number" min="0" step="1" inputmode="numeric" value="${esc(b.series&&b.series.volume||'')}" placeholder="1">
+        </label>
+      </div>
+    </div>
+    <div class="card">
+      <label class="f"><span class="lab">Status</span>
+        <select class="f" name="status" id="statusselect">
+          <option value="reading"${b.status==='reading'?' selected':''}>Lese ich gerade</option>
+          <option value="finished"${b.status==='finished'?' selected':''}>Schon gelesen / beendet</option>
+          <option value="wishlist"${b.status==='wishlist'?' selected':''}>Wunschliste</option>
+        </select>
+      </label>
+      <div id="datesblock">
+        <div class="f2" data-showfor="reading finished">
+          <label class="f"><span class="lab">Angefangen am</span><input class="f" name="startDate" type="date" value="${esc(b.startDate||(isNew&&b.status==='reading'?todayISO():''))}"></label>
+          <label class="f" data-showfor="finished"><span class="lab">Beendet am</span><input class="f" name="endDate" type="date" value="${esc(b.endDate||'')}"></label>
+        </div>
+        <label class="check" data-showfor="finished">
+          <input type="checkbox" name="retro" id="retrocheck" ${retro||(b.status==='finished'&&!b.endDate&&b.readYear)?'checked':''}>
+          <span>Genaue Daten weiß ich nicht mehr – ich trage nur das <strong>Lesejahr</strong> ein</span>
+        </label>
+        <label class="f" data-showfor="finished" id="retroyearwrap"><span class="lab">Gelesen im Jahr</span>
+          <select class="f" name="readYear">${yearOpts.map(y=>`<option${(b.readYear||yearNow)==y?' selected':''}>${y}</option>`).join('')}<option value="alt"${b.readYear==='alt'?' selected':''}>früher</option></select>
+        </label>
+      </div>
+      <label class="f" style="margin-bottom:0"><span class="lab">Notiz (optional)</span>
+        <textarea class="f" name="notes" placeholder="z. B. Empfehlung von Anna">${esc(b.notes||'')}</textarea>
+      </label>
+    </div>
+    <button class="btn primary block" type="submit">${isNew?'Buch anlegen':'Änderungen speichern'}</button>
+  </form>`);
+
+  let coverData = b.cover || null;
+  el.querySelector('#coverinput').addEventListener('change', e => {
+    const file = e.target.files && e.target.files[0];
+    if(file) resizeImage(file, dataUrl => {
+      coverData = dataUrl;
+      el.querySelector('#coverpreview').innerHTML = `<div class="cover"><img src="${dataUrl}" alt="Cover-Vorschau"></div>`;
+    });
+  });
+
+  const form = el.querySelector('#bookform');
+  const sync = () => {
+    const st = form.status.value;
+    const retroOn = form.retro && form.retro.checked;
+    el.querySelectorAll('[data-showfor]').forEach(n => {
+      const show = n.dataset.showfor.split(' ').includes(st);
+      n.style.display = show ? '' : 'none';
+    });
+    const ryw = el.querySelector('#retroyearwrap');
+    const dts = el.querySelector('[data-showfor="reading finished"]');
+    if(st==='finished'){ if(ryw) ryw.style.display = retroOn ? '' : 'none'; if(dts) dts.style.display = retroOn ? 'none' : ''; }
+  };
+  form.status.addEventListener('change', sync);
+  if(form.retro) form.retro.addEventListener('change', sync);
+  sync();
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const title = form.title.value.trim();
+    if(!title){ toast('Bitte gib einen Titel ein.'); form.title.focus(); return; }
+    const st = form.status.value;
+    const retroOn = st==='finished' && form.retro.checked;
+    const sName = form.seriesName.value.trim();
+    const data = {
+      title, author: form.author.value.trim(),
+      language: form.language.value, medium: form.medium.value,
+      genre: form.genre.value || '', cover: coverData,
+      series: sName ? { name:sName, volume: form.seriesVol.value.trim() } : null,
+      status: st, notes: form.notes.value.trim(),
+      startDate: (st!=='wishlist' && !retroOn) ? (form.startDate.value||null) : null,
+      endDate:   (st==='finished' && !retroOn) ? (form.endDate.value||null) : null,
+      readYear:  (st==='finished' && retroOn) ? form.readYear.value : null,
+    };
+    if(st==='finished' && !retroOn && !data.endDate){ data.endDate = todayISO(); }
+    if(isNew){
+      state.books.push({ id:uid(), addedAt:new Date().toISOString(), chat:[], ...data });
+      save(); closeOverlay();
+      ui.tab = st==='reading' ? 'reading' : (st==='wishlist' ? 'discover' : 'shelf');
+      renderApp(); toast(st==='finished' ? 'Ins Regal gestellt 📚' : (st==='wishlist' ? 'Auf die Wunschliste 🔖' : 'Viel Freude beim Lesen! 📖'));
+    } else {
+      Object.assign(book, data); save(); closeAllOverlays(); openBookDetail(book.id); toast('Gespeichert ✓');
+    }
+  });
+}
+
+/* ---------- Buch-Detail ---------- */
+function openBookDetail(id){
+  const b = getBook(id); if(!b) return;
+  const y = readYearOf(b);
+  const others = b.series && b.series.name
+    ? state.books.filter(x => x.id!==b.id && x.series && x.series.name===b.series.name)
+        .sort((p,q)=>(Number(p.series.volume)||0)-(Number(q.series.volume)||0))
+    : [];
+  const dur = (b.startDate && b.endDate) ? daysBetween(b.startDate,b.endDate) : null;
+
+  const refl = b.reflection && b.reflection.answers ? `
+    <h2 class="section">Dein Leseeindruck</h2>
+    <div class="card">
+      ${b.rating?`<div class="stars readonly" aria-label="Bewertung: ${b.rating} von 5">${[1,2,3,4,5].map(i=>`<span class="${i<=b.rating?'on':''}"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg></span>`).join('')}</div><hr class="sep">`:''}
+      ${b.reflection.answers.filter(a=>a.a&&a.a.trim()).map(a=>`<div class="reflection-q">${esc(a.q)}</div><div class="reflection-a">${esc(a.a)}</div>`).join('') || '<p class="hint">Keine Antworten notiert.</p>'}
+    </div>` : (b.status==='finished' ? `
+    <div class="card" style="text-align:center">
+      <p class="hint" style="margin:0 0 10px">Halte deine Eindrücke fest, solange sie frisch sind – mit einem persönlichen Fragenkatalog (5–10 Minuten).</p>
+      <button class="btn accent" data-action="start-reflection" data-id="${b.id}">Fragenkatalog starten ✍️</button>
+    </div>` : '');
+
+  const finishedExtras = b.status==='finished' ? `
+    <h2 class="section">Nach dem Buch</h2>
+    <div class="stack">
+      <button class="btn block" data-action="gen-facts" data-id="${b.id}">🎓 10 Fakten zu Buch & Autor·in</button>
+      <button class="btn block" data-action="gen-community" data-id="${b.id}">💬 Stimmen aus der Lese-Community</button>
+    </div>` : '';
+
+  openOverlay(b.title, `
+  <div class="detailhead">
+    <div style="width:110px">${coverHTML(b)}</div>
+    <div class="grow">
+      <h2 class="serif">${esc(b.title)}</h2>
+      <div class="hint">${esc(b.author||'')}</div>
+      <div class="row" style="flex-wrap:wrap;gap:6px;margin-top:8px">
+        ${b.genre?`<span class="chip ${genreAccent(b.genre)}">${esc(b.genre)}</span>`:''}
+        <span class="chip">${MEDIA[b.medium]?.icon||''} ${MEDIA[b.medium]?.label||''}</span>
+        ${b.language?`<span class="chip">${esc(b.language)}</span>`:''}
+        ${b.status==='wishlist'?'<span class="chip rose">Wunschliste</span>':''}
+      </div>
+    </div>
+  </div>
+
+  ${b.status==='reading' ? `
+  <div class="card" style="margin-bottom:14px">
+    ${progressPct(b)!=null?`<div class="progress"><i style="width:${progressPct(b)}%"></i></div>`:''}
+    <div class="plabel" style="margin-bottom:10px">${esc(progressLabel(b))}</div>
+    <div class="row" style="flex-wrap:wrap">
+      <button class="btn sm" data-action="edit-progress" data-id="${b.id}">Fortschritt eintragen</button>
+      <button class="btn sm" data-action="open-chat" data-id="${b.id}">💬 Über das Buch reden</button>
+      <button class="btn sm accent" data-action="start-finish" data-id="${b.id}">Beenden ✓</button>
+    </div>
+  </div>`:''}
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="metalist">
+      ${b.series&&b.series.name?`<div class="mrow"><span class="k">Reihe</span><span class="v">${esc(b.series.name)}${b.series.volume?` · Band ${esc(String(b.series.volume))}`:''}</span></div>`:''}
+      ${b.startDate?`<div class="mrow"><span class="k">Angefangen</span><span class="v">${fmtDate(b.startDate)}</span></div>`:''}
+      ${b.endDate?`<div class="mrow"><span class="k">Beendet</span><span class="v">${fmtDate(b.endDate)}</span></div>`:''}
+      ${dur!=null?`<div class="mrow"><span class="k">Lesedauer</span><span class="v">${dur===0?'1 Tag':dur+' Tage'}</span></div>`:''}
+      ${(!b.endDate&&y)?`<div class="mrow"><span class="k">Gelesen im Jahr</span><span class="v">${y==='alt'?'früher':y}</span></div>`:''}
+      ${b.notes?`<div class="mrow"><span class="k">Notiz</span><span class="v" style="font-weight:400;text-align:right">${esc(b.notes)}</span></div>`:''}
+    </div>
+  </div>
+
+  ${others.length?`
+  <h2 class="section">Weitere Bände der Reihe</h2>
+  <div class="shelfgrid" style="margin-bottom:14px">
+    ${others.map(o=>`<button class="shelfitem" data-action="open-book" data-id="${o.id}">
+      <div style="position:relative">${coverHTML(o)}<span class="badge-series">Bd. ${esc(String(o.series.volume||'?'))}</span></div>
+      <div class="t">${esc(o.title)}</div>
+      <div class="y">${o.status==='finished'?'gelesen':(o.status==='reading'?'lese ich':'Wunschliste')}</div>
+    </button>`).join('')}
+  </div>`:''}
+
+  ${refl}
+  ${b.facts?`<h2 class="section">10 Fakten</h2><div class="card aitext">${md(b.facts)}</div>`:''}
+  ${b.community?`<h2 class="section">Stimmen aus der Community</h2><div class="card aitext">${md(b.community)}</div>`:''}
+  ${finishedExtras}
+
+  <hr class="sep">
+  <div class="row" style="flex-wrap:wrap">
+    ${b.status==='wishlist'?`<button class="btn accent" data-action="mark-read-now" data-id="${b.id}">Jetzt lesen 📖</button>`:''}
+    ${b.status==='finished'?`<button class="btn" data-action="open-chat" data-id="${b.id}">💬 Chat</button>`:''}
+    <button class="btn" data-action="edit-book" data-id="${b.id}">Bearbeiten</button>
+    <button class="btn danger" data-action="delete-book" data-id="${b.id}">Löschen</button>
+  </div>`);
+}
+
+/* ---------- Fortschritt ---------- */
+function openProgress(id){
+  const b = getBook(id); if(!b) return;
+  const p = b.progress || { type:'page', current:'', total:'' };
+  const el = openOverlay('Lesefortschritt', `
+  <div class="card">
+    <p class="hint small" style="margin:0 0 12px">„${esc(b.title)}“ – dein Fortschritt bestimmt auch die <strong>Spoiler-Grenze</strong> im Buch-Chat.</p>
+    <form id="progform">
+      <label class="f"><span class="lab">Zählweise</span>
+        <select class="f" name="type">
+          <option value="page"${p.type==='page'?' selected':''}>Seite</option>
+          <option value="chapter"${p.type==='chapter'?' selected':''}>Kapitel</option>
+          <option value="percent"${p.type==='percent'?' selected':''}>Prozent (z. B. Kindle/Audible)</option>
+        </select>
+      </label>
+      <div class="f2">
+        <label class="f"><span class="lab">Aktuell</span><input class="f" name="current" type="number" min="0" inputmode="numeric" value="${esc(p.current??'')}" placeholder="z. B. 120"></label>
+        <label class="f" id="totalwrap"><span class="lab">Gesamt (optional)</span><input class="f" name="total" type="number" min="1" inputmode="numeric" value="${esc(p.total??'')}" placeholder="z. B. 380"></label>
+      </div>
+      <button class="btn primary block" type="submit">Speichern</button>
+    </form>
+  </div>`);
+  const form = el.querySelector('#progform');
+  const syncTotal = () => { el.querySelector('#totalwrap').style.display = form.type.value==='percent' ? 'none' : ''; };
+  form.type.addEventListener('change', syncTotal); syncTotal();
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    b.progress = { type:form.type.value, current:form.current.value, total:form.type.value==='percent'?'':form.total.value };
+    save(); closeOverlay(); toast('Fortschritt gespeichert 📖');
+  });
+}
+
+/* ---------- Beenden-Flow mit Fragenkatalog ---------- */
+async function startFinishFlow(id, reflectionOnly=false){
+  const b = getBook(id); if(!b) return;
+  const el = openOverlay(reflectionOnly ? 'Dein Leseeindruck' : 'Buch beenden', `<div id="flowbody"><div class="empty"><div class="big">✨</div><p>Dein persönlicher Fragenkatalog wird vorbereitet…</p></div></div>`);
+  const { qs, ai } = await personalizedQuestions(b);
+  if(!el.isConnected) return;
+  const flow = { step:0, qs, answers: qs.map(q=>({q, a:''})), rating: b.rating||0, endDate: b.endDate||todayISO(), reflectionOnly, ai };
+  renderFlow(el, b, flow);
+}
+function renderFlow(el, b, flow){
+  const body = el.querySelector('#flowbody');
+  const total = flow.qs.length + (flow.reflectionOnly ? 1 : 2); // meta + fragen + abschluss
+  const dots = `<div class="flowdots">${Array.from({length:total},(_,i)=>`<i class="${i<=flow.step?'on':''}"></i>`).join('')}</div>`;
+
+  const metaStep = !flow.reflectionOnly && flow.step===0;
+  const qIndex = flow.step - (flow.reflectionOnly ? 0 : 1);
+  const isSummary = qIndex >= flow.qs.length;
+
+  if(metaStep){
+    body.innerHTML = `${dots}
+    <div class="flowstep">Geschafft! 🎉</div>
+    <h3 class="flowq">„${esc(b.title)}“ beenden</h3>
+    <div class="card" style="margin-bottom:14px">
+      <label class="f"><span class="lab">Beendet am</span><input class="f" id="flow-end" type="date" value="${esc(flow.endDate)}"></label>
+      <span class="lab">Deine Bewertung</span>
+      <div class="stars" id="flow-stars">${[1,2,3,4,5].map(i=>`<button type="button" data-val="${i}" class="${i<=flow.rating?'on':''}" aria-label="${i} von 5 Sternen"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg></button>`).join('')}</div>
+    </div>
+    <p class="hint small">Gleich danach: dein persönlicher Fragenkatalog (${flow.qs.length} Fragen, ca. 5–10 Minuten)${flow.ai?' – von der KI auf dieses Buch zugeschnitten ✨':''}. Du kannst jede Frage auch überspringen.</p>
+    <button class="btn primary block" id="flow-next-btn" style="margin-top:10px">Weiter zu den Fragen</button>`;
+    body.querySelector('#flow-stars').addEventListener('click', e => {
+      const btn = e.target.closest('button[data-val]'); if(!btn) return;
+      flow.rating = Number(btn.dataset.val);
+      body.querySelectorAll('#flow-stars button').forEach(s => s.classList.toggle('on', Number(s.dataset.val)<=flow.rating));
+    });
+    body.querySelector('#flow-next-btn').addEventListener('click', () => {
+      flow.endDate = body.querySelector('#flow-end').value || todayISO();
+      flow.step++; renderFlow(el, b, flow);
+    });
+    return;
+  }
+  if(!isSummary){
+    const item = flow.answers[qIndex];
+    body.innerHTML = `${dots}
+    <div class="flowstep">Frage ${qIndex+1} von ${flow.qs.length}</div>
+    <h3 class="flowq">${esc(item.q)}</h3>
+    <textarea class="f" id="flow-answer" rows="6" placeholder="Deine Gedanken…">${esc(item.a)}</textarea>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="flow-back-btn">Zurück</button>
+      <button class="btn primary grow" id="flow-next-btn">${qIndex===flow.qs.length-1?'Abschließen':'Weiter'}</button>
+    </div>`;
+    const ta = body.querySelector('#flow-answer'); ta.focus();
+    body.querySelector('#flow-next-btn').addEventListener('click', () => { item.a = ta.value; flow.step++; renderFlow(el, b, flow); });
+    body.querySelector('#flow-back-btn').addEventListener('click', () => { item.a = ta.value; flow.step=Math.max(0, flow.step-1); if(flow.reflectionOnly && flow.step<0) flow.step=0; renderFlow(el, b, flow); });
+    return;
+  }
+  // Abschluss & speichern
+  if(!flow.reflectionOnly){
+    b.status = 'finished';
+    b.endDate = flow.endDate;
+    if(!b.startDate) b.startDate = null;
+  }
+  b.rating = flow.rating || b.rating || null;
+  b.reflection = { answers: flow.answers, completedAt: new Date().toISOString() };
+  save();
+  const answered = flow.answers.filter(a=>a.a.trim()).length;
+  body.innerHTML = `
+  <div class="empty" style="padding-top:20px">
+    <div class="big">🎉</div>
+    <h3>„${esc(b.title)}“ steht jetzt in deinem Regal</h3>
+    <p>${answered?`${answered} ${answered===1?'Antwort':'Antworten'} gespeichert – du findest deinen Leseeindruck jederzeit im Buch.`:'Du kannst den Fragenkatalog später jederzeit im Buch nachholen.'}</p>
+  </div>
+  <div class="stack">
+    <button class="btn block" data-action="gen-facts" data-id="${b.id}">🎓 10 Fakten zu Buch & Autor·in</button>
+    <button class="btn block" data-action="gen-community" data-id="${b.id}">💬 Stimmen aus der Lese-Community</button>
+    <button class="btn primary block" id="flow-done-btn">Fertig</button>
+  </div>`;
+  body.querySelector('#flow-done-btn').addEventListener('click', () => { closeAllOverlays(); ui.tab='shelf'; renderApp(); });
+}
+
+/* ---------- Fakten & Community ---------- */
+async function genFacts(id){
+  const b = getBook(id); if(!b) return;
+  if(b.facts){ openTextSheet('10 Fakten', b.facts); return; }
+  if(!aiAvailable()){
+    openTextSheet('10 Fakten', localFactsFallback(b), true);
+    return;
+  }
+  const el = openTextSheet('10 Fakten', '…', false, true);
+  try{
+    const t = await aiCall([{role:'user', content:
+`Nenne mir 10 kurze, wirklich interessante Fakten rund um das Buch "${b.title}"${b.author?` von ${b.author}`:''} und über den Autor bzw. die Autorin – Entstehung, Hintergründe, Wirkung, Kurioses. Nummeriert 1–10, je 1–2 Sätze, auf Deutsch. Wenn du das Buch nicht sicher kennst, sag das ehrlich und beschränke dich auf das, was du weißt.`}],
+      'Du bist ein kundiger Literatur-Podcast-Host: präzise, warm, keine erfundenen Fakten.', 1400);
+    b.facts = t; save();
+    if(el.isConnected) el.querySelector('.aitext').innerHTML = md(t);
+  }catch(e){
+    if(el.isConnected) el.querySelector('.aitext').innerHTML = md(localFactsFallback(b)) ;
+  }
+}
+async function genCommunity(id){
+  const b = getBook(id); if(!b) return;
+  if(b.community){ openTextSheet('Stimmen aus der Community', b.community); return; }
+  if(!aiAvailable()){
+    openTextSheet('Stimmen aus der Community', localCommunityFallback(b), true);
+    return;
+  }
+  const el = openTextSheet('Stimmen aus der Community', '…', false, true);
+  try{
+    const t = await aiCall([{role:'user', content:
+`Was diskutieren Leserinnen und Leser typischerweise über "${b.title}"${b.author?` von ${b.author}`:''}? Fasse 4–6 spannende Perspektiven, Deutungen, Lieblingsstellen oder Streitpunkte aus der Lese-Community zusammen (aus deinem Wissen über die Rezeption, ohne Internetzugriff – kennzeichne Unsicheres). Deutsch, kurze Absätze, jede Perspektive mit **fetter** Mini-Überschrift.`}],
+      'Du moderierst einen klugen Buchclub. Fair, vielstimmig, ohne Spoiler-Warnung wegzulassen: beginne mit dem Hinweis „Achtung, ab hier wird über das ganze Buch gesprochen.“', 1600);
+    b.community = t; save();
+    if(el.isConnected) el.querySelector('.aitext').innerHTML = md(t);
+  }catch(e){
+    if(el.isConnected) el.querySelector('.aitext').innerHTML = md(localCommunityFallback(b));
+  }
+}
+function localFactsFallback(b){
+  const q = encodeURIComponent(`${b.title} ${b.author||''}`.trim());
+  return `Ohne KI-Verbindung kann Eselsohr keine Fakten erzeugen – aber hier sind gute Startpunkte für „${b.title}“:
+
+1. Wikipedia-Suche: https://de.wikipedia.org/w/index.php?search=${q}
+2. Perlentaucher (Rezensionen): https://www.perlentaucher.de/suche.html?q=${q}
+
+Sobald du unter „Mehr → KI-Verbindung“ einen Schlüssel hinterlegst (und die App außerhalb der geschützten Vorschau nutzt), erstellt dir Eselsohr hier 10 persönliche Fakten zu Buch und Autor·in.`;
+}
+function localCommunityFallback(b){
+  const q = encodeURIComponent(`${b.title} ${b.author||''}`.trim());
+  return `Ohne KI-Verbindung zeigt Eselsohr hier keine Zusammenfassung der Community-Stimmen. Wo Leserinnen und Leser über „${b.title}“ diskutieren:
+
+- Goodreads: https://www.goodreads.com/search?q=${q}
+- LovelyBooks: https://www.lovelybooks.de/suche/?keyword=${q}
+
+Mit KI-Verbindung fasst Eselsohr die spannendsten Lesermeinungen und Deutungen direkt hier für dich zusammen.`;
+}
+function openTextSheet(title, text, isFallback=false, loading=false){
+  return openOverlay(title, `<div class="card aitext">${loading?'<p class="hint">Einen Moment – wird für dich zusammengestellt… ✨</p>':md(text)}</div>${isFallback?'':''}`);
+}
+
+/* ---------- Chat ---------- */
+function openChat(id){
+  const b = getBook(id); if(!b) return;
+  b.chat = b.chat || [];
+  const el = openOverlay('Chat · '+b.title, `
+  <div class="spoilerbar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+    <span class="grow">${b.status==='finished' ? 'Buch beendet – freies Gespräch über das ganze Buch' : 'Spoilerschutz: bis '+esc(boundaryLabel(b))}</span>
+    ${b.status==='reading'?`<button class="btn sm ghost" data-action="edit-progress" data-id="${b.id}" style="color:inherit">Ändern</button>`:''}
+  </div>
+  ${!aiAvailable()?`<p class="hint small" style="margin:0 0 10px">Begleiter-Modus: Dein Lese-Begleiter stellt dir Reflexionsfragen, kann aber ohne KI-Verbindung nicht inhaltlich antworten (Einstellungen → KI).</p>`:''}
+  <div class="chatlog" id="chatlog">
+    ${b.chat.length?'':`<div class="msg bot">Hallo! Ich bin dein Lese-Begleiter für „${esc(b.title)}“. Erzähl mir, wo du gerade stehst oder was dich beschäftigt – ich achte darauf, dass nichts gespoilert wird. 🔖</div>`}
+    ${b.chat.map(m=>`<div class="msg ${m.role==='user'?'user':'bot'}">${esc(m.content)}</div>`).join('')}
+  </div>
+  <form class="chatbar" id="chatform">
+    <textarea class="f" name="msg" rows="1" placeholder="Deine Nachricht…" aria-label="Nachricht"></textarea>
+    <button class="iconbtn" type="submit" aria-label="Senden" style="background:var(--ink);color:var(--bg)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>
+    </button>
+  </form>`);
+  const log = el.querySelector('#chatlog');
+  const scroll = () => { el.querySelector('.sbody').scrollTop = 1e9; };
+  scroll();
+  const form = el.querySelector('#chatform');
+  const ta = form.msg;
+  ta.addEventListener('keydown', e => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); form.requestSubmit(); } });
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const text = ta.value.trim(); if(!text) return;
+    ta.value='';
+    b.chat.push({role:'user', content:text, at:Date.now()});
+    log.insertAdjacentHTML('beforeend', `<div class="msg user">${esc(text)}</div>`);
+    scroll();
+    const tmp = document.createElement('div');
+    tmp.className='msg bot thinking'; tmp.textContent='schreibt…';
+    log.appendChild(tmp); scroll();
+    let reply;
+    if(aiAvailable()){
+      try{
+        const sys = `Du bist ein herzlicher, belesener Lesebegleiter in der Bücher-App Eselsohr. Die Nutzerin liest gerade "${b.title}"${b.author?` von ${b.author}`:''}${b.genre?` (${b.genre})`:''}${b.status==='finished'?' und hat es bereits BEENDET – ihr dürft über das ganze Buch sprechen':''}.
+${b.status!=='finished'?`WICHTIG – SPOILERSCHUTZ: Sie ist erst bei ${boundaryLabel(b)}. Sprich ausschließlich über Inhalte bis zu dieser Stelle. Verrate NICHTS, was danach passiert – auch nicht andeutungsweise und auch nicht auf direkte Nachfrage. Biete stattdessen an, gemeinsam spoilerfrei zu spekulieren.`:''}
+Antworte auf Deutsch, warm und prägnant (höchstens ~120 Wörter), stelle gern eine Rückfrage. Wenn du das Buch nicht sicher kennst, sage das ehrlich und arbeite mit dem, was die Nutzerin erzählt.`;
+        const msgs = b.chat.slice(-24).map(m=>({role: m.role==='user'?'user':'assistant', content:m.content}));
+        reply = await aiCall(msgs, sys, 700);
+      }catch(err){
+        reply = companionReply(b, text) + '\n\n(' + aiBlockedHint() + ')';
+      }
+    } else {
+      await new Promise(r=>setTimeout(r, 450));
+      reply = companionReply(b, text);
+    }
+    b.chat.push({role:'assistant', content:reply, at:Date.now()});
+    save();
+    tmp.classList.remove('thinking'); tmp.textContent = reply;
+    scroll();
+  });
+}
+
+/* ---------- Genre-Vorschlag (KI) ---------- */
+async function suggestGenre(btn){
+  const form = btn.closest('form');
+  const title = form.title.value.trim(), author = form.author.value.trim();
+  if(!title){ toast('Erst den Titel eintragen.'); return; }
+  btn.disabled = true; btn.textContent='…';
+  try{
+    const raw = await aiCall([{role:'user', content:`Welches Genre hat das Buch "${title}"${author?` von ${author}`:''}? Antworte mit GENAU einem Eintrag aus dieser Liste, ohne weiteren Text: ${GENRES.join(' | ')}`}], null, 60);
+    const hit = GENRES.find(g => raw.includes(g));
+    if(hit){ form.genre.value = hit; toast(`Eingeschätzt: ${hit} ✨`); }
+    else toast('Konnte das Genre nicht sicher einschätzen.');
+  }catch(e){ toast(aiBlockedHint()); }
+  btn.disabled = false; btn.textContent='✨';
+}
+
+/* =====================================================================
+   Aktionen (Event-Delegation)
+   ===================================================================== */
+const ACTIONS = {
+  'tab': el => { ui.tab = el.dataset.tab; closeAllOverlays(); },
+  'add-book': el => openBookForm(null, el.dataset.preset || (ui.tab==='shelf'?'finished':(ui.tab==='discover'?'wishlist':'reading'))),
+  'open-book': el => openBookDetail(el.dataset.id),
+  'edit-book': el => openBookForm(getBook(el.dataset.id)),
+  'delete-book': el => {
+    const id = el.dataset.id;
+    if(ui.deleteArmed === id){
+      state.books = state.books.filter(b=>b.id!==id);
+      save(); closeAllOverlays(); toast('Buch gelöscht');
+    } else {
+      ui.deleteArmed = id;
+      el.textContent = 'Wirklich löschen? Nochmal tippen';
+      setTimeout(()=>{ if(ui.deleteArmed===id){ ui.deleteArmed=null; if(el.isConnected) el.textContent='Löschen'; } }, 3500);
+    }
+  },
+  'start-finish': el => startFinishFlow(el.dataset.id, false),
+  'start-reflection': el => startFinishFlow(el.dataset.id, true),
+  'edit-progress': el => openProgress(el.dataset.id),
+  'open-chat': el => openChat(el.dataset.id),
+  'mark-read-now': el => {
+    const b = getBook(el.dataset.id); if(!b) return;
+    b.status='reading'; b.startDate = todayISO();
+    save(); closeAllOverlays(); ui.tab='reading'; renderApp(); toast('Viel Freude beim Lesen! 📖');
+  },
+  'close-overlay': () => closeOverlay(),
+  'intro-dismiss': () => { state.settings.seenIntro = true; save(); renderApp(); },
+  'save-settings': () => {
+    state.settings.apiKey = $('#set-key').value.trim();
+    state.settings.model = $('#set-model').value;
+    save(); renderApp(); toast(state.settings.apiKey ? 'KI verbunden ✨' : 'Gespeichert – Begleiter-Modus aktiv');
+  },
+  'export-backup': () => exportBackup(),
+  'gen-recs': () => generateRecs(),
+  'add-rec': el => {
+    const r = (state.recs||[])[Number(el.dataset.id)]; if(!r) return;
+    state.books.push({ id:uid(), title:r.titel, author:r.autor||'', status:'wishlist', notes:r.warum||'', addedAt:new Date().toISOString() });
+    save(); renderApp(); toast('Auf die Wunschliste gesetzt 🔖');
+  },
+  'gen-facts': el => genFacts(el.dataset.id),
+  'gen-community': el => genCommunity(el.dataset.id),
+  'suggest-genre': (el,_,e) => { e.preventDefault(); suggestGenre(el); },
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if(!el) return;
+  const fn = ACTIONS[el.dataset.action];
+  if(fn) fn(el, el.dataset.id, e);
+});
+
+/* Start */
+renderApp();
+</script>
+<!-- A:BODY:END -->
+</body>
+</html>
