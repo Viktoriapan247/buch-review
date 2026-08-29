@@ -12,6 +12,9 @@ Kein Konto, kein Tracking – alle Daten bleiben im Browser des Geräts (localSt
 - **Beenden-Flow**: Enddatum, Sternebewertung und ein **personalisierter Reflexions-Fragenkatalog** (5–10 Minuten), abgestimmt auf Genre, Medium, Reihe und Lesedauer – inkl. Fragen zu Erzählperspektive und dem, was man für die Zukunft mitnimmt
 - **Buch-Chat mit Spoilerschutz**: Gespräch über das Buch schon während des Lesens; die Grenze ist der eingetragene Fortschritt
 - **10 Fakten zu Buch & Autor·in** und **Stimmen aus der Lese-Community** nach dem Beenden
+- **„Worum ging’s?“ (KI-Erinnerung)**: kurze Zusammenfassung zum Auffrischen – ideal für nachgetragene Bücher vor dem Fragenkatalog
+- **Zwischen-Fragenkatalog** für aktuelle Bücher (spoilerfrei, auf den Lesestand bezogen) – Antworten jederzeit bearbeitbar, ebenso der Leseeindruck nach dem Beenden
+- **Eigene Zusammenfassung** pro Buch, mit Leitfragen & Tipps und optionalem KI-Entwurf aus den eigenen Stichpunkten
 - **Bücherregal** mit Suche (auch nach Lesejahr) sowie Filtern nach Jahr, Genre, Medium, Sprache und Reihe, mehrere Sortierungen
 - **Wunschliste / Leseliste** und **Empfehlungen** auf Basis des eigenen Regals
 - **Statistik**: Bücher pro Jahr, Genres, Medien
