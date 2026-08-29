@@ -600,9 +600,9 @@ a{ color:var(--rose-text); font-weight:600; }
 /* =====================================================================
    Novelle – dein digitales Bücherregal
    Daten bleiben lokal auf dem Gerät (localStorage). Optional lässt sich
-   ein Claude-API-Schlüssel hinterlegen, der Chat, Fragenkatalog, Fakten
-   und Empfehlungen mit echter KI betreibt (außerhalb der Artifact-
-   Sandbox; dort greifen die lokalen Begleiter-Funktionen).
+   ein Google-Gemini-API-Schlüssel hinterlegen, der Chat, Fragenkatalog,
+   Fakten und Empfehlungen mit echter KI betreibt (außerhalb der
+   Artifact-Sandbox; dort greifen die lokalen Begleiter-Funktionen).
    ===================================================================== */
 
 const DB_KEY = 'eselsohr.v1';
@@ -712,30 +712,49 @@ function resizeImage(file, cb){
    KI-Anbindung (optional, per API-Schlüssel in den Einstellungen)
    ===================================================================== */
 function aiAvailable(){ return !!(state.settings && state.settings.apiKey); }
+function geminiModel(){
+  const m = state.settings.model;
+  return (m && m.indexOf('gemini') === 0) ? m : 'gemini-3.5-flash-lite';
+}
 async function aiCall(messages, system, maxTokens=1200){
   const key = state.settings.apiKey;
   if(!key) throw new Error('kein-schluessel');
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method:'POST',
-    headers:{
-      'content-type':'application/json',
-      'x-api-key': key,
-      'anthropic-version':'2023-06-01',
-      'anthropic-dangerous-direct-browser-access':'true',
-    },
-    body: JSON.stringify({
-      model: state.settings.model || 'claude-sonnet-5',
-      max_tokens: maxTokens,
-      system: system || undefined,
-      messages,
-    }),
-  });
-  if(!res.ok) throw new Error('api-'+res.status);
+  const body = {
+    contents: messages.map(m => ({ role: m.role==='assistant' ? 'model' : 'user', parts: [{ text: m.content }] })),
+    generationConfig: { maxOutputTokens: Math.max(2048, maxTokens*2) },
+  };
+  if(system) body.systemInstruction = { parts: [{ text: system }] };
+  let res;
+  try{
+    res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+geminiModel()+':generateContent', {
+      method:'POST',
+      headers:{ 'content-type':'application/json', 'x-goog-api-key': key },
+      body: JSON.stringify(body),
+    });
+  }catch(e){ const err = new Error('netz'); err.network = true; throw err; }
+  if(!res.ok){
+    const err = new Error('api-'+res.status); err.httpStatus = res.status;
+    try{ const j = await res.json(); err.apiStatus = (j && j.error && j.error.status) || ''; }catch(e2){}
+    throw err;
+  }
   const data = await res.json();
-  return (data.content||[]).map(c => c.text || '').join('');
+  const parts = (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) || [];
+  const text = parts.filter(pt => !pt.thought && typeof pt.text === 'string').map(pt => pt.text).join('');
+  if(!text) throw new Error('leer');
+  return text;
 }
 function aiBlockedHint(){
-  return 'Die KI-Verbindung hat nicht geklappt. In der geschützten Artifact-Ansicht sind externe Verbindungen gesperrt – dort arbeitet Novelle im lokalen Begleiter-Modus. Als eigenständig installierte App (siehe README) funktioniert die KI mit deinem API-Schlüssel.';
+  return 'Die KI-Verbindung hat nicht geklappt. In der geschützten Artifact-Ansicht sind externe Verbindungen gesperrt – dort arbeitet Novelle im lokalen Begleiter-Modus. Als eigenständig installierte App (siehe README) funktioniert Gemini mit deinem API-Schlüssel.';
+}
+function aiErrorMessage(e){
+  const code = (e && e.httpStatus) || 0, st = (e && e.apiStatus) || '';
+  if(code===400 || code===403 || st==='INVALID_ARGUMENT' || st==='PERMISSION_DENIED')
+    return 'Der Gemini-API-Schlüssel scheint ungültig zu sein. Prüfe ihn unter „Mehr → KI-Verbindung“ – bis dahin arbeitet Novelle im Begleiter-Modus.';
+  if(code===429 || st==='RESOURCE_EXHAUSTED')
+    return 'Das Tageslimit der Gemini-Gratis-Stufe ist erreicht – morgen geht es weiter. Bis dahin arbeitet Novelle im Begleiter-Modus.';
+  if(code===404 || st==='NOT_FOUND')
+    return 'Das gewählte Gemini-Modell ist nicht verfügbar. Wähle unter „Mehr → KI-Verbindung“ ein anderes Modell.';
+  return aiBlockedHint();
 }
 /* Sehr kleine Markdown-Aufbereitung für KI-Antworten */
 function md(t){
@@ -1089,7 +1108,7 @@ async function generateRecs(){
     state.recs = JSON.parse(m[0]).slice(0,6);
     save(); renderApp(); toast('Frische Empfehlungen für dich ✨');
   }catch(e){
-    toast(aiBlockedHint());
+    toast(aiErrorMessage(e));
     if(btn){ btn.disabled=false; btn.textContent='✨ Empfehlungen erstellen'; }
   }
 }
@@ -1155,15 +1174,15 @@ function viewMore(){
 
   <h2 class="section">KI-Verbindung</h2>
   <div class="card" style="margin-bottom:14px">
-    <p class="hint small" style="margin:0 0 10px">Mit einem Claude-API-Schlüssel werden Buch-Chat, Fragenkatalog, 10 Fakten, Community-Stimmen und Empfehlungen von echter KI erstellt. Ohne Schlüssel arbeitet Novelle im lokalen Begleiter-Modus. Der Schlüssel bleibt nur auf deinem Gerät.<br><br>So verknüpfst du: Unter <strong>console.anthropic.com</strong> anmelden → „API Keys“ → Schlüssel erstellen (beginnt mit sk-ant-…) → hier einfügen und speichern. Hinweis: In der geschützten Claude-Vorschau sind externe Verbindungen gesperrt – die KI funktioniert, wenn die App eigenständig läuft (z. B. über GitHub Pages installiert).</p>
+    <p class="hint small" style="margin:0 0 10px">Mit einem Google-Gemini-API-Schlüssel werden Buch-Chat, Fragenkatalog, 10 Fakten, Community-Stimmen und Empfehlungen von echter KI erstellt. Ohne Schlüssel arbeitet Novelle im lokalen Begleiter-Modus. Der Schlüssel bleibt nur auf deinem Gerät.<br><br>So verknüpfst du: Auf <strong>aistudio.google.com</strong> anmelden → „Get API key“ → Schlüssel erstellen (beginnt mit AIza…) → hier einfügen und speichern. Die kostenlose Stufe reicht für Novelle gut aus. Hinweis: In der geschützten Claude-Vorschau sind externe Verbindungen gesperrt – die KI funktioniert, wenn die App eigenständig läuft (z. B. über GitHub Pages installiert).</p>
     <label class="f"><span class="lab">API-Schlüssel</span>
-      <input class="f" id="set-key" type="password" placeholder="sk-ant-…" value="${esc(s.apiKey||'')}" autocomplete="off">
+      <input class="f" id="set-key" type="password" placeholder="AIza…" value="${esc(s.apiKey||'')}" autocomplete="off">
     </label>
     <label class="f"><span class="lab">Modell</span>
       <select class="f" id="set-model">
-        <option value="claude-sonnet-5"${(!s.model||s.model==='claude-sonnet-5')?' selected':''}>Claude Sonnet 5 (empfohlen)</option>
-        <option value="claude-haiku-4-5-20251001"${s.model==='claude-haiku-4-5-20251001'?' selected':''}>Claude Haiku 4.5 (schnell & günstig)</option>
-        <option value="claude-opus-5"${s.model==='claude-opus-5'?' selected':''}>Claude Opus 5</option>
+        <option value="gemini-3.5-flash-lite"${(!s.model||s.model.indexOf('gemini')!==0||s.model==='gemini-3.5-flash-lite')?' selected':''}>Gemini 3.5 Flash-Lite (empfohlen · schnell & gratis)</option>
+        <option value="gemini-3.6-flash"${s.model==='gemini-3.6-flash'?' selected':''}>Gemini 3.6 Flash</option>
+        <option value="gemini-3.7-flash"${s.model==='gemini-3.7-flash'?' selected':''}>Gemini 3.7 Flash (leistungsstark)</option>
       </select>
     </label>
     <button class="btn primary" data-action="save-settings">Speichern</button>
@@ -1595,7 +1614,8 @@ async function genFacts(id){
     b.facts = t; save();
     if(el.isConnected) el.querySelector('.aitext').innerHTML = md(t);
   }catch(e){
-    if(el.isConnected) el.querySelector('.aitext').innerHTML = md(localFactsFallback(b)) ;
+    toast(aiErrorMessage(e));
+    if(el.isConnected) el.querySelector('.aitext').innerHTML = md(localFactsFallback(b));
   }
 }
 async function genCommunity(id){
@@ -1613,6 +1633,7 @@ async function genCommunity(id){
     b.community = t; save();
     if(el.isConnected) el.querySelector('.aitext').innerHTML = md(t);
   }catch(e){
+    toast(aiErrorMessage(e));
     if(el.isConnected) el.querySelector('.aitext').innerHTML = md(localCommunityFallback(b));
   }
 }
@@ -1684,7 +1705,7 @@ Antworte auf Deutsch, warm und prägnant (höchstens ~120 Wörter), stelle gern 
         const msgs = b.chat.slice(-24).map(m=>({role: m.role==='user'?'user':'assistant', content:m.content}));
         reply = await aiCall(msgs, sys, 700);
       }catch(err){
-        reply = companionReply(b, text) + '\n\n(' + aiBlockedHint() + ')';
+        reply = companionReply(b, text) + '\n\n(' + aiErrorMessage(err) + ')';
       }
     } else {
       await new Promise(r=>setTimeout(r, 450));
@@ -1708,7 +1729,7 @@ async function suggestGenre(btn){
     const hit = GENRES.find(g => raw.includes(g));
     if(hit){ form.genre.value = hit; toast(`Eingeschätzt: ${hit} ✨`); }
     else toast('Konnte das Genre nicht sicher einschätzen.');
-  }catch(e){ toast(aiBlockedHint()); }
+  }catch(e){ toast(aiErrorMessage(e)); }
   btn.disabled = false; btn.textContent='✨';
 }
 

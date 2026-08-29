@@ -23,16 +23,23 @@ Kein Konto, kein Tracking – alle Daten bleiben im Browser des Geräts (localSt
 Ohne Konfiguration arbeitet die App im **Begleiter-Modus**: Der Fragenkatalog wird
 regelbasiert personalisiert, der Chat stellt Reflexionsfragen.
 
-Unter **Mehr → KI-Verbindung** kann ein Claude-API-Schlüssel hinterlegt werden
-(bleibt nur auf dem Gerät). Dann übernehmen echte KI-Aufrufe:
+Unter **Mehr → KI-Verbindung** kann ein Google-Gemini-API-Schlüssel hinterlegt
+werden (kostenlos über [Google AI Studio](https://aistudio.google.com) → „Get API
+key“; bleibt nur im Browser/localStorage, nie im Code). Dann übernehmen echte
+KI-Aufrufe (Standard-Modell: `gemini-3.5-flash-lite`, schnell und in der
+Gratis-Stufe enthalten; alternativ `gemini-3.6-flash` / `gemini-3.7-flash`):
 
 - Buch-Chat mit inhaltlichen Antworten (weiterhin mit striktem Spoilerschutz)
 - auf das konkrete Buch zugeschnittener Fragenkatalog
 - 10 Fakten, Community-Stimmen, Genre-Einschätzung und Buchempfehlungen
 
+Bei ungültigem Schlüssel oder erreichtem Tageslimit zeigt Novelle eine
+verständliche Meldung und fällt automatisch in den Begleiter-Modus zurück.
+
 Hinweis: In der geschützten Claude-Artifact-Vorschau sind externe Verbindungen
 gesperrt – dort greift automatisch der Begleiter-Modus. Selbst gehostet
-(z. B. GitHub Pages) funktionieren die KI-Funktionen mit Schlüssel.
+(z. B. GitHub Pages) funktionieren die KI-Funktionen mit Schlüssel; die
+Gemini-API erlaubt Aufrufe direkt aus dem Browser (CORS).
 
 ## Nutzung
 
