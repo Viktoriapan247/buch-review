@@ -5,7 +5,7 @@ Kein Konto, kein Tracking – alle Daten bleiben im Browser des Geräts (localSt
 
 ## Funktionen
 
-- **Bücher anlegen** mit Titel, Autor·in, Sprache, Medium (Physisch / Kindle & E-Book / Audible & Hörbuch), Cover-Upload (wird automatisch verkleinert), Genre, Start- und Enddatum
+- **Bücher anlegen** mit Titel, Autor·in, Sprache, Medium (Physisch / Kindle & E-Book / Audible & Hörbuch), Cover-Upload (wird automatisch verkleinert), Genre, Erscheinungsjahr/-ort, Start- und Enddatum – mit KI-Verbindung füllt Novelle Autor·in, Erscheinungsjahr/-ort, Genre und Reihe automatisch aus, sobald der Titel eingegeben ist
 - **Bereits gelesene Bücher nachtragen** – nur mit dem Lesejahr, wenn genaue Daten nicht mehr bekannt sind
 - **Mehrere Bücher parallel lesen** – Tab „Aktuell“ mit Lesefortschritt (Seite / Kapitel / Prozent)
 - **Buchreihen verbinden** – Reihenname + Bandnummer, weitere Bände werden im Buchdetail verlinkt

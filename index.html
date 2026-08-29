@@ -1286,6 +1286,16 @@ function openBookForm(book, preset){
           <label class="f" style="margin-bottom:0"><span class="lab">Autor·in</span><input class="f" name="author" value="${esc(b.author||'')}" placeholder="z. B. Matt Haig"></label>
         </div>
       </div>
+      <div style="margin-top:12px">
+        ${aiAvailable()
+          ? `<button type="button" class="btn sm block" data-action="autofill-book" id="autofillbtn">✨ Autor·in & Eckdaten automatisch ausfüllen</button>
+             <span class="hint" style="font-size:11.5px;display:block;margin-top:5px">Füllt leere Felder (Autor·in, Erscheinungsjahr & -ort, Genre, Reihe) per KI – passiert auch automatisch, sobald du den Titel eingibst.</span>`
+          : `<span class="hint small">Mit KI-Verbindung (unter „Mehr“) füllt Novelle Autor·in, Erscheinungsjahr & -ort und Genre automatisch aus, sobald du den Titel eingibst.</span>`}
+      </div>
+      <div class="f2" style="margin-top:12px">
+        <label class="f" style="margin-bottom:0"><span class="lab">Erscheinungsjahr</span><input class="f" name="pubYear" inputmode="numeric" value="${esc(b.pubYear||'')}" placeholder="z. B. 2020"></label>
+        <label class="f" style="margin-bottom:0"><span class="lab">Erscheinungsort</span><input class="f" name="pubPlace" value="${esc(b.pubPlace||'')}" placeholder="z. B. München"></label>
+      </div>
     </div>
     <div class="card">
       <div class="f2">
@@ -1297,14 +1307,10 @@ function openBookForm(book, preset){
         </label>
       </div>
       <label class="f"><span class="lab">Genre</span>
-        <div class="row">
-          <select class="f grow" name="genre">
-            <option value="">– wählen –</option>
-            ${GENRES.map(g=>`<option${b.genre===g?' selected':''}>${g}</option>`).join('')}
-          </select>
-          ${aiAvailable()?`<button type="button" class="btn sm" data-action="suggest-genre" title="Genre von der KI einschätzen lassen">✨</button>`:''}
-        </div>
-        ${!aiAvailable()?'<span class="hint small">Mit KI-Verbindung (unter „Mehr“) schätzt Novelle das Genre automatisch ein.</span>':''}
+        <select class="f" name="genre">
+          <option value="">– wählen –</option>
+          ${GENRES.map(g=>`<option${b.genre===g?' selected':''}>${g}</option>`).join('')}
+        </select>
       </label>
       <div class="f2" style="margin-bottom:0">
         <label class="f" style="margin-bottom:0"><span class="lab">Reihe (optional)</span>
@@ -1354,6 +1360,9 @@ function openBookForm(book, preset){
   });
 
   const form = el.querySelector('#bookform');
+  form.title.addEventListener('change', () => {
+    if(aiAvailable() && form.title.value.trim().length > 2 && !form.author.value.trim()) autofillBook(form, true);
+  });
   const sync = () => {
     const st = form.status.value;
     const retroOn = form.retro && form.retro.checked;
@@ -1381,6 +1390,7 @@ function openBookForm(book, preset){
       language: form.language.value, medium: form.medium.value,
       genre: form.genre.value || '', cover: coverData,
       series: sName ? { name:sName, volume: form.seriesVol.value.trim() } : null,
+      pubYear: form.pubYear.value.trim(), pubPlace: form.pubPlace.value.trim(),
       status: st, notes: form.notes.value.trim(),
       startDate: (st!=='wishlist' && !retroOn) ? (form.startDate.value||null) : null,
       endDate:   (st==='finished' && !retroOn) ? (form.endDate.value||null) : null,
@@ -1455,6 +1465,7 @@ function openBookDetail(id){
   <div class="card" style="margin-bottom:14px">
     <div class="metalist">
       ${b.series&&b.series.name?`<div class="mrow"><span class="k">Reihe</span><span class="v">${esc(b.series.name)}${b.series.volume?` · Band ${esc(String(b.series.volume))}`:''}</span></div>`:''}
+      ${(b.pubYear||b.pubPlace)?`<div class="mrow"><span class="k">Erschienen</span><span class="v">${esc([b.pubYear,b.pubPlace].filter(Boolean).join(' · '))}</span></div>`:''}
       ${b.startDate?`<div class="mrow"><span class="k">Angefangen</span><span class="v">${fmtDate(b.startDate)}</span></div>`:''}
       ${b.endDate?`<div class="mrow"><span class="k">Beendet</span><span class="v">${fmtDate(b.endDate)}</span></div>`:''}
       ${dur!=null?`<div class="mrow"><span class="k">Lesedauer</span><span class="v">${dur===0?'1 Tag':dur+' Tage'}</span></div>`:''}
@@ -1718,6 +1729,42 @@ Antworte auf Deutsch, warm und prägnant (höchstens ~120 Wörter), stelle gern 
   });
 }
 
+/* ---------- Buchdaten automatisch ausfüllen (KI) ---------- */
+async function autofillBook(form, silent=false){
+  const title = form.title.value.trim();
+  if(!title){ if(!silent) toast('Erst den Titel eintragen.'); return; }
+  if(form._autofillBusy) return;
+  form._autofillBusy = true;
+  const btn = form.querySelector('#autofillbtn');
+  const prev = btn ? btn.textContent : '';
+  if(btn){ btn.disabled = true; btn.textContent = 'Suche Buchdaten…'; }
+  try{
+    const raw = await aiCall([{role:'user', content:
+`Gib mir Eckdaten zum Buch "${title}"${form.author.value.trim()?` von ${form.author.value.trim()}`:''}.
+Antworte NUR als JSON, ohne weiteren Text:
+{"autor":"Vor- und Nachname","erscheinungsjahr":"Jahr der Erstausgabe","erscheinungsort":"Verlagsort der Erstausgabe","genre":"genau ein Eintrag aus dieser Liste: ${GENRES.join(' | ')}","reihe":"Name der Buchreihe oder leer","band":"Bandnummer oder leer"}
+Wichtig: Wenn du das Buch nicht sicher kennst oder ein Feld nicht sicher weißt, setze dieses Feld auf "" statt zu raten.`}],
+      'Du bist eine präzise Bibliothekarin. Antworte ausschließlich mit validem JSON und erfinde nichts.', 400);
+    const m = raw.match(/\{[\s\S]*\}/);
+    if(!m) throw new Error('parse');
+    const d = JSON.parse(m[0]);
+    let filled = 0;
+    const put = (field, val) => { if(val && field && !field.value.trim()){ field.value = String(val).trim(); filled++; } };
+    put(form.author, d.autor);
+    put(form.pubYear, d.erscheinungsjahr);
+    put(form.pubPlace, d.erscheinungsort);
+    if(d.genre && !form.genre.value){ const hit = GENRES.find(g => String(d.genre).includes(g)); if(hit){ form.genre.value = hit; filled++; } }
+    put(form.seriesName, d.reihe);
+    put(form.seriesVol, d.band);
+    if(filled) toast(`${filled} ${filled===1?'Feld':'Felder'} automatisch ausgefüllt ✨`);
+    else if(!silent) toast('Die KI kennt dieses Buch nicht sicher – bitte selbst ergänzen.');
+  }catch(e){
+    if(!silent) toast(aiErrorMessage(e));
+  }
+  if(btn){ btn.disabled = false; btn.textContent = prev; }
+  form._autofillBusy = false;
+}
+
 /* ---------- Genre-Vorschlag (KI) ---------- */
 async function suggestGenre(btn){
   const form = btn.closest('form');
@@ -1783,6 +1830,7 @@ const ACTIONS = {
   'gen-facts': el => genFacts(el.dataset.id),
   'gen-community': el => genCommunity(el.dataset.id),
   'suggest-genre': (el,_,e) => { e.preventDefault(); suggestGenre(el); },
+  'autofill-book': (el,_,e) => { e.preventDefault(); const f = el.closest('form'); if(f) autofillBook(f, false); },
 };
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-action]');
