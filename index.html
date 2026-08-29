@@ -442,6 +442,16 @@ textarea.f{ min-height:96px; resize:vertical; }
 .metalist .k{ color:var(--muted); }
 .metalist .v{ font-weight:600; text-align:right; font-variant-numeric:tabular-nums; }
 
+/* Bewertung 1–10 */
+.rate10{ display:flex; gap:4px; }
+.rate10 button{
+  appearance:none; flex:1; min-width:0; min-height:38px; border-radius:999px; cursor:pointer;
+  border:1px solid var(--glass-border); background:var(--surface2);
+  font-size:12.5px; font-weight:700; color:var(--muted); padding:0;
+  font-variant-numeric:tabular-nums;
+}
+.rate10 button.on{ background:var(--proggrad); border-color:transparent; color:#fff; }
+
 /* Sterne */
 .stars{ display:inline-flex; gap:2px; }
 .stars button{ appearance:none; background:none; border:0; padding:8px 5px; cursor:pointer; min-width:38px; min-height:44px; }
@@ -625,12 +635,20 @@ const ui = {
   deleteArmed: null,
 };
 
+function migrateState(st){
+  if(!st.settings) st.settings = {};
+  if(st.settings.ratingScale !== 10){
+    (st.books||[]).forEach(b => { if(b.rating) b.rating = Math.min(10, Math.round(b.rating * 2)); });
+    st.settings.ratingScale = 10;
+  }
+  return st;
+}
 function load(){
   try{
     const raw = localStorage.getItem(DB_KEY);
-    if(raw){ const s = JSON.parse(raw); if(s && Array.isArray(s.books)) return s; }
+    if(raw){ const s = JSON.parse(raw); if(s && Array.isArray(s.books)) return migrateState(s); }
   }catch(e){}
-  return { books: [], settings: {}, recs: [] };
+  return { books: [], settings: { ratingScale: 10 }, recs: [] };
 }
 function persist(){
   try{ localStorage.setItem(DB_KEY, JSON.stringify(state)); }
@@ -1122,7 +1140,7 @@ async function generateRecs(){
   const btn = $('#recbtn'); if(btn){ btn.disabled=true; btn.textContent='Denke nach…'; }
   try{
     const lib = state.books.filter(b=>b.status!=='wishlist').slice(0,60).map(b =>
-      `- "${b.title}"${b.author?` von ${b.author}`:''} (${b.genre||'?'}, ${b.status==='reading'?'lese ich gerade':'gelesen'}${b.rating?`, Bewertung ${b.rating}/5`:''})`).join('\n');
+      `- "${b.title}"${b.author?` von ${b.author}`:''} (${b.genre||'?'}, ${b.status==='reading'?'lese ich gerade':'gelesen'}${b.rating?`, Bewertung ${b.rating}/10`:''})`).join('\n');
     const wl = state.books.filter(b=>b.status==='wishlist').map(b=>`- ${b.title}`).join('\n') || '- (leer)';
     const raw = await aiCall([{role:'user', content:
 `Hier ist mein Bücherregal:\n${lib}\n\nAuf meiner Wunschliste stehen schon:\n${wl}\n\nSchlage mir 5 Bücher vor, die gut zu meinem Geschmack passen und noch NICHT in Regal oder Wunschliste stehen. Antworte NUR mit einem JSON-Array: [{"titel":"…","autor":"…","warum":"…"}] – "warum" in 1–2 persönlichen Sätzen auf Deutsch.`}],
@@ -1275,7 +1293,7 @@ function bindMore(){
       try{
         const data = JSON.parse(r.result);
         if(!data || !Array.isArray(data.books)) throw new Error('format');
-        state = data; save(); renderApp(); toast(`Backup geladen: ${data.books.length} Bücher 📚`);
+        state = migrateState(data); save(); renderApp(); toast(`Backup geladen: ${data.books.length} Bücher 📚`);
       }catch(e){ toast('Das ist kein gültiges Novelle-Backup.'); }
     };
     r.readAsText(file);
@@ -1598,7 +1616,7 @@ function openBookDetail(id){
   const refl = b.reflection && b.reflection.answers ? `
     <h2 class="section">Dein Leseeindruck</h2>
     <div class="card">
-      ${b.rating?`<div class="stars readonly" aria-label="Bewertung: ${b.rating} von 5">${[1,2,3,4,5].map(i=>`<span class="${i<=b.rating?'on':''}"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg></span>`).join('')}</div><hr class="sep">`:''}
+      ${b.rating?`<div class="row" style="gap:8px;margin-bottom:2px"><span class="chip gold" style="font-size:14px;padding:6px 14px">★ ${b.rating}/10</span><div class="progress grow" style="margin:0"><i style="width:${b.rating*10}%"></i></div></div><hr class="sep">`:''}
       ${b.reflection.answers.filter(a=>a.a&&a.a.trim()).map(a=>`<div class="reflection-q">${esc(a.q)}</div><div class="reflection-a">${esc(a.a)}</div>`).join('') || '<p class="hint">Keine Antworten notiert.</p>'}
       <button class="btn sm" data-action="edit-reflection" data-id="${b.id}" style="margin-top:6px">✍️ Antworten bearbeiten</button>
     </div>` : (b.status==='finished' ? `
@@ -1769,7 +1787,8 @@ function renderFlow(el, b, flow){
     <div class="card" style="margin-bottom:14px">
       <label class="f"><span class="lab">Beendet am</span><input class="f" id="flow-end" type="date" value="${esc(flow.endDate)}"></label>
       <span class="lab">Deine Bewertung</span>
-      <div class="stars" id="flow-stars">${[1,2,3,4,5].map(i=>`<button type="button" data-val="${i}" class="${i<=flow.rating?'on':''}" aria-label="${i} von 5 Sternen"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg></button>`).join('')}</div>
+      <div class="rate10" id="flow-stars">${Array.from({length:10},(_,i)=>i+1).map(i=>`<button type="button" data-val="${i}" class="${i<=flow.rating?'on':''}" aria-label="${i} von 10">${i}</button>`).join('')}</div>
+      <div class="plabel" id="rate-label" style="margin-top:7px">${flow.rating?flow.rating+'/10':'Tippe deine Bewertung an'}</div>
     </div>
     <p class="hint small">Gleich danach: dein persönlicher Fragenkatalog (${flow.qs.length} Fragen, ca. 5–10 Minuten)${flow.ai?' – von der KI auf dieses Buch zugeschnitten ✨':''}. Du kannst jede Frage auch überspringen.</p>
     <button class="btn primary block" id="flow-next-btn" style="margin-top:10px">Weiter zu den Fragen</button>`;
@@ -1777,6 +1796,7 @@ function renderFlow(el, b, flow){
       const btn = e.target.closest('button[data-val]'); if(!btn) return;
       flow.rating = Number(btn.dataset.val);
       body.querySelectorAll('#flow-stars button').forEach(s => s.classList.toggle('on', Number(s.dataset.val)<=flow.rating));
+      const lab = body.querySelector('#rate-label'); if(lab) lab.textContent = flow.rating+'/10';
     });
     body.querySelector('#flow-next-btn').addEventListener('click', () => {
       flow.endDate = body.querySelector('#flow-end').value || todayISO();
