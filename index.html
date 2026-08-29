@@ -632,10 +632,12 @@ function load(){
   }catch(e){}
   return { books: [], settings: {}, recs: [] };
 }
-function save(){
+function persist(){
   try{ localStorage.setItem(DB_KEY, JSON.stringify(state)); }
   catch(e){ toast('Speichern fehlgeschlagen – Speicher voll? Exportiere ein Backup.'); }
 }
+function save(){ persist(); scheduleSync(); }
+function touch(b){ if(b) b.updatedAt = Date.now(); }
 
 /* ---------- Helfer ---------- */
 const $  = s => document.querySelector(s);
@@ -1111,7 +1113,7 @@ function bindDiscover(){
   if(f) f.addEventListener('submit', e => {
     e.preventDefault();
     const t = f.title.value.trim(); if(!t) return;
-    state.books.push({ id:uid(), title:t, status:'wishlist', addedAt:new Date().toISOString() });
+    state.books.push({ id:uid(), title:t, status:'wishlist', addedAt:new Date().toISOString(), updatedAt:Date.now() });
     save(); toast('Auf die Wunschliste gesetzt ♡'); renderApp();
   });
 }
@@ -1211,6 +1213,45 @@ function viewMore(){
     <span class="chip ${aiAvailable()?'gold':''}" style="margin-left:8px">${aiAvailable()?'KI verbunden':'Begleiter-Modus'}</span>
   </div>
 
+  <h2 class="section">Cloud-Sync · gleiche Bibliothek überall</h2>
+  <div class="card" style="margin-bottom:14px">
+    ${syncConf() ? `
+      <p class="hint small" style="margin:0 0 10px">☁️ <strong>Aktiv.</strong> Deine Bibliothek wird Ende-zu-Ende-verschlüsselt synchronisiert – beim Öffnen der App und nach jeder Änderung. Status: <strong id="syncstatus">${state.settings.lastSync ? 'zuletzt '+new Date(state.settings.lastSync).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})+' Uhr' : 'noch nicht synchronisiert'}</strong></p>
+      <p class="hint small" style="margin:0 0 10px">Sync-Code für deine anderen Geräte (dort dieselben drei Werte eintragen): <code style="user-select:all">${esc(state.settings.sync.code)}</code></p>
+      <div class="row" style="flex-wrap:wrap">
+        <button class="btn sm" data-action="sync-now">Jetzt synchronisieren</button>
+        <button class="btn sm danger" data-action="sync-off">Sync trennen</button>
+      </div>
+    ` : `
+      <p class="hint small" style="margin:0 0 10px">Gleiche Bibliothek auf Handy und Desktop – kostenlos über eine eigene Supabase-Datenbank und <strong>Ende-zu-Ende-verschlüsselt</strong>: Nur wer deinen Sync-Code kennt, kann deine Bücher lesen.</p>
+      <details style="margin-bottom:12px">
+        <summary style="cursor:pointer;font-weight:600;font-size:14px">📋 Einmalige Einrichtung (ca. 10 Minuten)</summary>
+        <ol class="hint small" style="padding-left:18px;margin:10px 0 6px">
+          <li>Kostenloses Konto auf <strong>supabase.com</strong> anlegen → „New project“ (Name frei wählbar, Region Europa).</li>
+          <li>Links den <strong>SQL Editor</strong> öffnen, diesen Befehl einfügen und auf „Run“ drücken:</li>
+        </ol>
+        <pre style="background:var(--surface2);border-radius:10px;padding:10px;font-size:11px;line-height:1.5;overflow-x:auto;user-select:all">create table if not exists novelle_sync (
+  id text primary key,
+  payload text not null,
+  updated_at timestamptz not null default now()
+);
+alter table novelle_sync enable row level security;
+create policy "novelle_rw" on novelle_sync
+  for all using (true) with check (true);</pre>
+        <ol class="hint small" start="3" style="padding-left:18px;margin:6px 0 0">
+          <li>Unter <strong>Project Settings → API</strong> die „Project URL“ und den „anon public“-Schlüssel kopieren und unten eintragen.</li>
+          <li>Sync-Code erzeugen, aktivieren – fertig. Auf jedem weiteren Gerät einfach dieselben drei Werte eintragen.</li>
+        </ol>
+      </details>
+      <label class="f"><span class="lab">Projekt-URL</span><input class="f" id="sync-url" placeholder="https://xxxx.supabase.co" autocomplete="off" value="${esc((state.settings.sync&&state.settings.sync.url)||'')}"></label>
+      <label class="f"><span class="lab">anon public key</span><input class="f" id="sync-key" type="password" placeholder="eyJ…" autocomplete="off" value="${esc((state.settings.sync&&state.settings.sync.key)||'')}"></label>
+      <label class="f"><span class="lab">Sync-Code (auf allen Geräten gleich)</span>
+        <div class="row"><input class="f grow" id="sync-code" autocomplete="off" placeholder="z. B. mxk4-p2wq-…" value="${esc((state.settings.sync&&state.settings.sync.code)||'')}"><button class="btn sm" data-action="sync-gencode">Neu</button></div>
+      </label>
+      <button class="btn primary" data-action="sync-on">Cloud-Sync aktivieren</button>
+    `}
+  </div>
+
   <h2 class="section">Datensicherung</h2>
   <div class="card" style="margin-bottom:14px">
     <p class="hint small" style="margin:0 0 10px">Deine Bibliothek liegt nur auf diesem Gerät. Sichere sie regelmäßig als Datei – so kannst du sie auch auf ein anderes Gerät mitnehmen.</p>
@@ -1256,6 +1297,120 @@ async function exportBackup(){
     setTimeout(()=>URL.revokeObjectURL(url), 4000);
     toast('Backup wird heruntergeladen 💾');
   }catch(e){ toast('Export hier nicht möglich.'); }
+}
+
+/* =====================================================================
+   Cloud-Sync (optional): Ende-zu-Ende-verschlüsselt über Supabase
+   ===================================================================== */
+function syncConf(){
+  const c = state.settings.sync;
+  return (c && c.url && c.key && c.code) ? c : null;
+}
+async function sha256hex(str){
+  const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2,'0')).join('');
+}
+async function syncAesKey(code){
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(code), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name:'PBKDF2', salt: new TextEncoder().encode('novelle-sync-v1'), iterations: 150000, hash:'SHA-256' },
+    base, { name:'AES-GCM', length:256 }, false, ['encrypt','decrypt']);
+}
+function b64enc(buf){ let out=''; const a = new Uint8Array(buf); for(let i=0;i<a.length;i+=0x8000) out += String.fromCharCode.apply(null, a.subarray(i, i+0x8000)); return btoa(out); }
+function b64dec(str){ const bin = atob(str); const a = new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) a[i] = bin.charCodeAt(i); return a; }
+async function syncEncrypt(obj, code){
+  const key = await syncAesKey(code);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, new TextEncoder().encode(JSON.stringify(obj)));
+  const out = new Uint8Array(iv.length + ct.byteLength);
+  out.set(iv); out.set(new Uint8Array(ct), iv.length);
+  return b64enc(out.buffer);
+}
+async function syncDecrypt(b64, code){
+  const key = await syncAesKey(code);
+  const raw = b64dec(b64);
+  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv: raw.slice(0,12)}, key, raw.slice(12));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+function syncHeaders(c){ return { 'apikey': c.key, 'Authorization': 'Bearer '+c.key, 'content-type': 'application/json' }; }
+function syncBase(c){ return c.url.replace(/\/+$/,'') + '/rest/v1/novelle_sync'; }
+async function syncPull(c, id){
+  const res = await fetch(syncBase(c)+'?id=eq.'+id+'&select=payload', { headers: syncHeaders(c) });
+  if(!res.ok) throw new Error('sync-pull-'+res.status);
+  const rows = await res.json();
+  if(!rows.length) return null;
+  return syncDecrypt(rows[0].payload, c.code);
+}
+async function syncPush(c, id, lib){
+  const payload = await syncEncrypt(lib, c.code);
+  const res = await fetch(syncBase(c), {
+    method: 'POST',
+    headers: { ...syncHeaders(c), 'Prefer': 'resolution=merge-duplicates' },
+    body: JSON.stringify([{ id, payload, updated_at: new Date().toISOString() }]),
+  });
+  if(!res.ok) throw new Error('sync-push-'+res.status);
+}
+function mergeLibraries(local, remote){
+  const map = new Map();
+  for(const b of [...(remote.books||[]), ...(local.books||[])]){
+    if(!b || !b.id) continue;
+    const prev = map.get(b.id);
+    if(!prev || (b.updatedAt||0) >= (prev.updatedAt||0)) map.set(b.id, b);
+  }
+  const tombs = new Map();
+  for(const t of [...(remote.deleted||[]), ...(local.deleted||[])]){
+    if(!t || !t.id) continue;
+    const prev = tombs.get(t.id);
+    if(!prev || t.at > prev.at) tombs.set(t.id, t);
+  }
+  for(const [tid, t] of tombs){ const b = map.get(tid); if(b && (b.updatedAt||0) <= t.at) map.delete(tid); }
+  return {
+    books: [...map.values()],
+    deleted: [...tombs.values()].slice(-300),
+    recs: (local.recs && local.recs.length) ? local.recs : (remote.recs || []),
+  };
+}
+let _syncBusy = false, _syncTimer = null;
+async function runSync(manual=false){
+  const c = syncConf(); if(!c) return;
+  if(!(window.crypto && crypto.subtle)){ if(manual) toast('Cloud-Sync braucht eine sichere Verbindung (HTTPS).'); return; }
+  if(_syncBusy){ if(manual) toast('Synchronisiere bereits…'); return; }
+  _syncBusy = true;
+  setSyncStatus('busy');
+  try{
+    const id = await sha256hex('novelle:'+c.code);
+    const remote = await syncPull(c, id);
+    const local = { books: state.books, deleted: state.deleted||[], recs: state.recs||[] };
+    const merged = remote ? mergeLibraries(local, remote) : local;
+    state.books = merged.books; state.deleted = merged.deleted; state.recs = merged.recs;
+    state.settings.lastSync = Date.now();
+    persist();
+    await syncPush(c, id, merged);
+    setSyncStatus('ok');
+    if(manual) toast('Bibliothek synchronisiert ☁️');
+    if(!document.querySelector('#overlays .sheet')) renderApp();
+  }catch(e){
+    setSyncStatus('error');
+    if(manual){
+      if(e && e.name === 'OperationError') toast('Der Sync-Code passt nicht zu den vorhandenen Cloud-Daten.');
+      else toast('Cloud-Sync gerade nicht möglich – Zugangsdaten prüfen oder später erneut versuchen.');
+    }
+  }
+  _syncBusy = false;
+}
+function setSyncStatus(st){
+  const el = document.getElementById('syncstatus'); if(!el) return;
+  el.textContent = st==='busy' ? 'synchronisiere…'
+    : (st==='ok' ? 'zuletzt '+new Date(state.settings.lastSync||Date.now()).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})+' Uhr'
+    : 'Verbindungsproblem');
+}
+function scheduleSync(){ if(!syncConf()) return; clearTimeout(_syncTimer); _syncTimer = setTimeout(() => runSync(false), 2500); }
+function makeSyncCode(){
+  const a = crypto.getRandomValues(new Uint8Array(16));
+  const alph = 'abcdefghjkmnpqrstuvwxyz23456789';
+  let out = '';
+  for(let i=0;i<16;i++){ out += alph[a[i] % alph.length]; if(i%4===3 && i<15) out += '-'; }
+  return out;
 }
 
 /* =====================================================================
@@ -1420,12 +1575,12 @@ function openBookForm(book, preset){
     };
     if(st==='finished' && !retroOn && !data.endDate){ data.endDate = todayISO(); }
     if(isNew){
-      state.books.push({ id:uid(), addedAt:new Date().toISOString(), chat:[], ...data });
+      state.books.push({ id:uid(), addedAt:new Date().toISOString(), updatedAt:Date.now(), chat:[], ...data });
       save(); closeOverlay();
       ui.tab = st==='reading' ? 'reading' : (st==='wishlist' ? 'discover' : 'shelf');
       renderApp(); toast(st==='finished' ? 'Ins Regal gestellt 📚' : (st==='wishlist' ? 'Auf die Wunschliste ♡' : 'Viel Freude beim Lesen! 📖'));
     } else {
-      Object.assign(book, data); save(); closeAllOverlays(); openBookDetail(book.id); toast('Gespeichert ✓');
+      Object.assign(book, data); touch(book); save(); closeAllOverlays(); openBookDetail(book.id); toast('Gespeichert ✓');
     }
   });
 }
@@ -1573,7 +1728,7 @@ function openProgress(id){
   form.addEventListener('submit', e => {
     e.preventDefault();
     b.progress = { type:form.type.value, current:form.current.value, total:form.type.value==='percent'?'':form.total.value };
-    save(); closeOverlay(); toast('Fortschritt gespeichert 📖');
+    touch(b); save(); closeOverlay(); toast('Fortschritt gespeichert 📖');
   });
 }
 
@@ -1652,7 +1807,7 @@ function renderFlow(el, b, flow){
   }
   if(flow.mode==='mid'){
     b.midReflection = { answers: flow.answers, completedAt: new Date().toISOString() };
-    save();
+    touch(b); save();
     body.innerHTML = `
     <div class="empty" style="padding-top:20px">
       ${glyphBadge()}
@@ -1665,7 +1820,7 @@ function renderFlow(el, b, flow){
   }
   b.rating = flow.rating || b.rating || null;
   b.reflection = { answers: flow.answers, completedAt: new Date().toISOString() };
-  save();
+  touch(b); save();
   const answered = flow.answers.filter(a=>a.a.trim()).length;
   body.innerHTML = `
   <div class="empty" style="padding-top:20px">
@@ -1694,7 +1849,7 @@ async function genFacts(id){
     const t = await aiCall([{role:'user', content:
 `Nenne mir 10 kurze, wirklich interessante Fakten rund um das Buch "${b.title}"${b.author?` von ${b.author}`:''} und über den Autor bzw. die Autorin – Entstehung, Hintergründe, Wirkung, Kurioses. Nummeriert 1–10, je 1–2 Sätze, auf Deutsch. Wenn du das Buch nicht sicher kennst, sag das ehrlich und beschränke dich auf das, was du weißt.`}],
       'Du bist ein kundiger Literatur-Podcast-Host: präzise, warm, keine erfundenen Fakten.', 1400);
-    b.facts = t; save();
+    b.facts = t; touch(b); save();
     if(el.isConnected) el.querySelector('.aitext').innerHTML = md(t);
   }catch(e){
     toast(aiErrorMessage(e));
@@ -1713,7 +1868,7 @@ async function genCommunity(id){
     const t = await aiCall([{role:'user', content:
 `Was diskutieren Leserinnen und Leser typischerweise über "${b.title}"${b.author?` von ${b.author}`:''}? Fasse 4–6 spannende Perspektiven, Deutungen, Lieblingsstellen oder Streitpunkte aus der Lese-Community zusammen (aus deinem Wissen über die Rezeption, ohne Internetzugriff – kennzeichne Unsicheres). Deutsch, kurze Absätze, jede Perspektive mit **fetter** Mini-Überschrift.`}],
       'Du moderierst einen klugen Buchclub. Fair, vielstimmig, ohne Spoiler-Warnung wegzulassen: beginne mit dem Hinweis „Achtung, ab hier wird über das ganze Buch gesprochen.“', 1600);
-    b.community = t; save();
+    b.community = t; touch(b); save();
     if(el.isConnected) el.querySelector('.aitext').innerHTML = md(t);
   }catch(e){
     toast(aiErrorMessage(e));
@@ -1752,7 +1907,7 @@ async function genSummary(id){
     const t = await aiCall([{role:'user', content:
 `Fasse das Buch "${b.title}"${b.author?` von ${b.author}`:''} in etwa 150–200 Wörtern zusammen – als Gedächtnisstütze für jemanden, der es vor längerer Zeit gelesen hat und sich wieder erinnern möchte: Ausgangslage, wichtigste Figuren, zentrale Wendungen und das Ende dürfen genannt werden (das Buch ist beendet). Deutsch, klare Absätze. Wenn du das Buch nicht sicher kennst, sage das ehrlich statt etwas zu erfinden.`}],
       'Du bist eine präzise Lektorin. Keine erfundenen Inhalte.', 900);
-    b.summary = t; save();
+    b.summary = t; touch(b); save();
     if(el.isConnected) el.querySelector('.aitext').innerHTML = md(t);
   }catch(e){
     toast(aiErrorMessage(e));
@@ -1812,7 +1967,7 @@ Formuliere daraus eine persönliche Zusammenfassung (4–7 Sätze, Ich-Perspekti
     draftBtn.disabled = false; draftBtn.textContent = '✨ KI-Entwurf aus meinen Stichpunkten';
   });
   el.querySelector('#ms-save').addEventListener('click', () => {
-    b.mySummary = ta.value.trim(); save(); closeAllOverlays(); openBookDetail(b.id); toast('Zusammenfassung gespeichert ✓');
+    b.mySummary = ta.value.trim(); touch(b); save(); closeAllOverlays(); openBookDetail(b.id); toast('Zusammenfassung gespeichert ✓');
   });
 }
 
@@ -1869,7 +2024,7 @@ Antworte auf Deutsch, warm und prägnant (höchstens ~120 Wörter), stelle gern 
       reply = companionReply(b, text);
     }
     b.chat.push({role:'assistant', content:reply, at:Date.now()});
-    save();
+    touch(b); save();
     tmp.classList.remove('thinking'); tmp.textContent = reply;
     scroll();
   });
@@ -1938,6 +2093,7 @@ const ACTIONS = {
     const id = el.dataset.id;
     if(ui.deleteArmed === id){
       state.books = state.books.filter(b=>b.id!==id);
+      (state.deleted = state.deleted || []).push({ id, at: Date.now() });
       save(); closeAllOverlays(); toast('Buch gelöscht');
     } else {
       ui.deleteArmed = id;
@@ -1955,7 +2111,7 @@ const ACTIONS = {
   'open-chat': el => openChat(el.dataset.id),
   'mark-read-now': el => {
     const b = getBook(el.dataset.id); if(!b) return;
-    b.status='reading'; b.startDate = todayISO();
+    b.status='reading'; b.startDate = todayISO(); touch(b);
     save(); closeAllOverlays(); ui.tab='reading'; renderApp(); toast('Viel Freude beim Lesen! 📖');
   },
   'close-overlay': () => closeOverlay(),
@@ -1971,10 +2127,24 @@ const ACTIONS = {
     save(); renderApp(); toast(state.settings.apiKey ? 'KI verbunden ✨' : 'Gespeichert – Begleiter-Modus aktiv');
   },
   'export-backup': () => exportBackup(),
+  'sync-now': () => runSync(true),
+  'sync-off': () => { delete state.settings.sync; persist(); renderApp(); toast('Cloud-Sync getrennt – deine Daten bleiben lokal erhalten.'); },
+  'sync-gencode': () => { const el = $('#sync-code'); if(el) el.value = makeSyncCode(); },
+  'sync-on': () => {
+    const url = $('#sync-url').value.trim().replace(/\/+$/,'');
+    const key = $('#sync-key').value.trim();
+    const code = $('#sync-code').value.trim();
+    if(!/^https:\/\//.test(url)){ toast('Bitte die Projekt-URL prüfen (beginnt mit https://).'); return; }
+    if(!key){ toast('Bitte den anon public key einfügen.'); return; }
+    if(code.length < 8){ toast('Der Sync-Code sollte mindestens 8 Zeichen haben.'); return; }
+    state.settings.sync = { url, key, code };
+    persist();
+    runSync(true);
+  },
   'gen-recs': () => generateRecs(),
   'add-rec': el => {
     const r = (state.recs||[])[Number(el.dataset.id)]; if(!r) return;
-    state.books.push({ id:uid(), title:r.titel, author:r.autor||'', status:'wishlist', notes:r.warum||'', addedAt:new Date().toISOString() });
+    state.books.push({ id:uid(), title:r.titel, author:r.autor||'', status:'wishlist', notes:r.warum||'', addedAt:new Date().toISOString(), updatedAt:Date.now() });
     save(); renderApp(); toast('Auf die Wunschliste gesetzt ♡');
   },
   'gen-facts': el => genFacts(el.dataset.id),
@@ -1997,6 +2167,7 @@ function applyPalette(){
 /* Start */
 applyPalette();
 renderApp();
+if(syncConf()) runSync(false);
 setTimeout(() => {
   const sp = $('#splash');
   if(sp){ sp.style.opacity = '0'; setTimeout(() => sp.remove(), 260); }

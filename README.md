@@ -19,6 +19,7 @@ Kein Konto, kein Tracking – alle Daten bleiben im Browser des Geräts (localSt
 - **Wunschliste / Leseliste** und **Empfehlungen** auf Basis des eigenen Regals
 - **Statistik**: Bücher pro Jahr, Genres, Medien
 - **Backup exportieren / importieren** (JSON) – auch als Brücke zwischen Geräten
+- **Cloud-Sync (optional, kostenlos)**: gleiche Bibliothek auf allen Geräten über eine eigene Supabase-Datenbank (Gratis-Stufe). Ende-zu-Ende-verschlüsselt (AES-GCM, Schlüssel aus dem Sync-Code abgeleitet) – weder Supabase noch Dritte können die Daten lesen. Einrichtung direkt in der App unter Mehr → Cloud-Sync (Anleitung inklusive SQL-Snippet eingebaut); Abgleich beim Öffnen und nach jeder Änderung, Zusammenführung pro Buch mit Lösch-Tombstones
 - **Helles und dunkles Design** mit zwei wählbaren Farbwelten: „Aura“ (Pink, Orange, Lila, Gelb) und „Nacht“ (Schwarz & Navy), jeweils mit Frosted-Glass-Oberflächen im iOS-Stil und passendem Logo
 
 ## KI-Funktionen (optional)
@@ -52,9 +53,9 @@ Gemini-API erlaubt Aufrufe direkt aus dem Browser (CORS).
 
 ## Roadmap / Vormerkungen
 
-- **Optionales Konto & Geräte-Sync**: bewusst vorgemerkt, aber noch nicht umgesetzt.
-  Die Datenhaltung ist darauf vorbereitet (ein zentrales JSON-Objekt, Export/Import
-  als Austauschformat), sodass später ein Sync-Backend andocken kann.
+- ~~Geräte-Sync~~: umgesetzt als optionaler, Ende-zu-Ende-verschlüsselter
+  Cloud-Sync über Supabase (siehe Funktionen). Ein „richtiges“ Konto mit Login
+  bleibt als mögliche spätere Ausbaustufe vorgemerkt.
 - Community-Beiträge aus echten Quellen (statt KI-Zusammenfassung)
 - Erinnerungen / Leseziele
 
