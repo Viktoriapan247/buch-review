@@ -353,18 +353,31 @@ textarea.f{ min-height:96px; resize:vertical; }
 
 /* Gerade am Lesen */
 .readrow{
-  display:flex; gap:14px; padding:16px; margin-bottom:14px;
+  display:flex; flex-direction:column; padding:16px; margin-bottom:14px;
   background:var(--surface); border:1px solid var(--glass-border); border-radius:24px;
   -webkit-backdrop-filter:blur(20px) saturate(1.5); backdrop-filter:blur(20px) saturate(1.5);
   box-shadow:var(--shadow);
 }
+.readrow .rowtop{ display:flex; gap:14px; }
 .readrow .cover{ width:104px; }
 .readrow h3{ margin:2px 0 3px; font-size:20px; font-weight:700; letter-spacing:-.015em; line-height:1.22; text-wrap:balance; }
 .author{ color:var(--muted); font-size:13px; margin-bottom:7px; }
 .progress{ height:6px; border-radius:99px; background:var(--surface2); border:1px solid var(--glass-border); overflow:hidden; margin:10px 0 5px; }
 .progress i{ display:block; height:100%; background:var(--proggrad); border-radius:99px; }
 .plabel{ font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; }
-.readrow .acts{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+.readrow .acts{ display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:14px; }
+.readrow .acts .btn{
+  min-height:40px; padding:7px 4px; font-size:12.5px; font-weight:600; gap:5px; white-space:nowrap;
+  background:color-mix(in srgb, var(--surface2) 62%, transparent);
+  border-color:color-mix(in srgb, var(--glass-border) 55%, transparent);
+  box-shadow:none;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+.readrow .acts .btn.accent{
+  background:var(--grad-soft), color-mix(in srgb, var(--surface2) 45%, transparent);
+  font-weight:700;
+}
+.readrow .acts .ic{ width:15px; height:15px; }
 
 /* Regal-Raster */
 .shelfgrid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px 14px; }
@@ -1018,23 +1031,25 @@ function viewReading(){
   return intro + `<div class="slabel">Gerade am Lesen</div><div>` + cur.map(b => {
     const pct = progressPct(b);
     return `<article class="readrow">
-      <button class="shelfitem" data-action="open-book" data-id="${b.id}" aria-label="${esc(b.title)} öffnen" style="width:104px">${coverHTML(b)}</button>
-      <div class="grow">
-        <h3 class="serif">${esc(b.title)}</h3>
-        <div class="author">${esc(b.author||'')}</div>
-        <div class="row" style="flex-wrap:wrap;gap:6px">
-          ${b.genre?`<span class="chip ${genreAccent(b.genre)}">${esc(b.genre)}</span>`:''}
-          <span class="chip">${ic(MEDIA[b.medium]?.icon||'book')} ${MEDIA[b.medium]?.label||''}</span>
-          ${b.series&&b.series.name?`<span class="chip lilac">Reihe · Bd. ${esc(String(b.series.volume||'?'))}</span>`:''}
+      <div class="rowtop">
+        <button class="shelfitem" data-action="open-book" data-id="${b.id}" aria-label="${esc(b.title)} öffnen" style="width:104px">${coverHTML(b)}</button>
+        <div class="grow">
+          <h3 class="serif">${esc(b.title)}</h3>
+          <div class="author">${esc(b.author||'')}</div>
+          <div class="row" style="flex-wrap:wrap;gap:6px">
+            ${b.genre?`<span class="chip ${genreAccent(b.genre)}">${esc(b.genre)}</span>`:''}
+            <span class="chip">${ic(MEDIA[b.medium]?.icon||'book')} ${MEDIA[b.medium]?.label||''}</span>
+            ${b.series&&b.series.name?`<span class="chip lilac">Reihe · Bd. ${esc(String(b.series.volume||'?'))}</span>`:''}
+          </div>
+          ${pct!=null?`<div class="progress" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>`:'<div style="height:8px"></div>'}
+          <div class="plabel">${esc(progressLabel(b))}${b.startDate?` · seit ${fmtDate(b.startDate)}`:''}</div>
         </div>
-        ${pct!=null?`<div class="progress" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>`:'<div style="height:8px"></div>'}
-        <div class="plabel">${esc(progressLabel(b))}${b.startDate?` · seit ${fmtDate(b.startDate)}`:''}</div>
-        <div class="acts">
-          <button class="btn sm" data-action="edit-progress" data-id="${b.id}">Fortschritt</button>
-          <button class="btn sm" data-action="open-chat" data-id="${b.id}">${ic('chat')} Chat</button>
-          <button class="btn sm" data-action="mid-reflection" data-id="${b.id}">${ic('pen')} Fragen</button>
-          <button class="btn sm accent" data-action="start-finish" data-id="${b.id}">Beenden ✓</button>
-        </div>
+      </div>
+      <div class="acts">
+        <button class="btn sm" data-action="edit-progress" data-id="${b.id}">Lesestand</button>
+        <button class="btn sm" data-action="open-chat" data-id="${b.id}">${ic('chat')} Chat</button>
+        <button class="btn sm" data-action="mid-reflection" data-id="${b.id}">${ic('pen')} Fragen</button>
+        <button class="btn sm accent" data-action="start-finish" data-id="${b.id}">Beenden ✓</button>
       </div>
     </article>`;
   }).join('') + `</div>`;
