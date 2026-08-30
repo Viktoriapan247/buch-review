@@ -582,6 +582,14 @@ a{ color:var(--rose-text); font-weight:600; }
   .palcard:hover{ border-color:var(--dash); }
 }
 
+/* Menü-Zeilen (Listen-Buttons im Buchdetail) */
+.btn.menu{
+  width:100%; justify-content:flex-start; text-align:left; gap:10px;
+  padding:13px 16px; border-radius:16px; font-size:14.5px;
+}
+.btn.menu .chev{ margin-left:auto; display:flex; opacity:.4; }
+.btn.menu .chev .ic{ width:16px; height:16px; }
+
 /* Farbwelt-Auswahl */
 .palpick{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:4px; }
 .palcard{ appearance:none; padding:0; text-align:left; cursor:pointer; border-radius:18px; overflow:hidden;
@@ -762,6 +770,7 @@ const ICONS = {
   heart: '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l8.8 8.6 8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/>',
   cloud: '<path d="M18 10h-1.3A8 8 0 1 0 9 20h9a4 4 0 0 0 0-8z"/>',
   tablet: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>',
+  chev: '<path d="M9 6l6 6-6 6"/>',
   headphones: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>',
 };
 function ic(name){ return `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]||''}</svg>`; }
@@ -1693,11 +1702,11 @@ function openBookDetail(id){
       <button class="btn sm" data-action="edit-reflection" data-id="${b.id}" style="margin-top:6px">${ic('pen')} Antworten bearbeiten</button>
     </div>` : (b.status==='finished' ? `
     <h2 class="section">Dein Leseeindruck</h2>
-    <div class="card" style="text-align:center">
-      <p class="hint" style="margin:0 0 10px">Halte deine Eindrücke fest – mit einem persönlichen Fragenkatalog (5–10 Minuten). Lange her? Lass dich vorher kurz erinnern.</p>
-      <div class="row" style="flex-wrap:wrap;justify-content:center">
-        <button class="btn sm" data-action="gen-summary" data-id="${b.id}">${ic('book')} Worum ging’s nochmal?</button>
-        <button class="btn sm accent" data-action="start-reflection" data-id="${b.id}">Fragenkatalog starten</button>
+    <div class="card">
+      <p class="hint" style="margin:0 0 12px">Halte deine Eindrücke fest – mit einem persönlichen Fragenkatalog (5–10 Minuten). Lange her? Lass dich vorher kurz erinnern.</p>
+      <div class="stack" style="gap:8px">
+        <button class="btn menu accent" data-action="start-reflection" data-id="${b.id}">${ic('pen')} Fragenkatalog starten<span class="chev">${ic('chev')}</span></button>
+        <button class="btn menu" data-action="gen-summary" data-id="${b.id}">${ic('book')} Worum ging’s nochmal?<span class="chev">${ic('chev')}</span></button>
       </div>
     </div>` : '');
 
@@ -1715,14 +1724,14 @@ function openBookDetail(id){
       <button class="btn sm" data-action="open-mysummary" data-id="${b.id}" style="margin-top:10px">Bearbeiten</button>
     </div>` : `
     <h2 class="section">Meine Zusammenfassung</h2>
-    <button class="btn block" data-action="open-mysummary" data-id="${b.id}" style="margin-bottom:2px">${ic('doc')} Eigene Zusammenfassung schreiben</button>`) : '';
+    <button class="btn menu" data-action="open-mysummary" data-id="${b.id}" style="margin-bottom:2px">${ic('doc')} Eigene Zusammenfassung schreiben<span class="chev">${ic('chev')}</span></button>`) : '';
 
   const finishedExtras = b.status==='finished' ? `
     <h2 class="section">Nach dem Buch</h2>
-    <div class="stack">
-      <button class="btn block" data-action="gen-summary" data-id="${b.id}">${ic('book')} Worum ging’s? Kurze Erinnerung</button>
-      <button class="btn block" data-action="gen-facts" data-id="${b.id}">${ic('cap')} 10 Fakten zu Buch & Autor·in</button>
-      <button class="btn block" data-action="gen-community" data-id="${b.id}">${ic('users')} Stimmen aus der Lese-Community</button>
+    <div class="stack" style="gap:8px">
+      <button class="btn menu" data-action="gen-summary" data-id="${b.id}">${ic('book')} Worum ging’s? Kurze Erinnerung<span class="chev">${ic('chev')}</span></button>
+      <button class="btn menu" data-action="gen-facts" data-id="${b.id}">${ic('cap')} 10 Fakten zu Buch & Autor·in<span class="chev">${ic('chev')}</span></button>
+      <button class="btn menu" data-action="gen-community" data-id="${b.id}">${ic('users')} Stimmen aus der Lese-Community<span class="chev">${ic('chev')}</span></button>
     </div>` : '';
 
   openOverlay(b.title, `
@@ -1921,8 +1930,8 @@ function renderFlow(el, b, flow){
     <p>${answered?`${answered} ${answered===1?'Antwort':'Antworten'} gespeichert – du findest deinen Leseeindruck jederzeit im Buch.`:'Du kannst den Fragenkatalog später jederzeit im Buch nachholen.'}</p>
   </div>
   <div class="stack">
-    <button class="btn block" data-action="gen-facts" data-id="${b.id}">${ic('cap')} 10 Fakten zu Buch & Autor·in</button>
-    <button class="btn block" data-action="gen-community" data-id="${b.id}">${ic('users')} Stimmen aus der Lese-Community</button>
+    <button class="btn menu" data-action="gen-facts" data-id="${b.id}">${ic('cap')} 10 Fakten zu Buch & Autor·in<span class="chev">${ic('chev')}</span></button>
+    <button class="btn menu" data-action="gen-community" data-id="${b.id}">${ic('users')} Stimmen aus der Lese-Community<span class="chev">${ic('chev')}</span></button>
     <button class="btn primary block" id="flow-done-btn">Fertig</button>
   </div>`;
   body.querySelector('#flow-done-btn').addEventListener('click', () => { closeAllOverlays(); ui.tab='shelf'; renderApp(); });
