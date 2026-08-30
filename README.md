@@ -1,6 +1,8 @@
 # Novelle 🔖 – dein digitales Bücherregal
 
-Eine private, mobile-first Lese-App als eine einzige HTML-Datei (`index.html`).
+Eine private Lese-App als eine einzige HTML-Datei (`index.html`) – mobile-first,
+ab 900 px Fensterbreite mit Desktop-Layout (Seitenleiste, breites Regal-Raster,
+zentrierte Dialoge). Icons als minimalistische Linien-SVGs, keine Emojis.
 Kein Konto, kein Tracking – alle Daten bleiben im Browser des Geräts (localStorage).
 
 ## Funktionen
