@@ -681,8 +681,8 @@ a{ color:var(--rose-text); font-weight:600; }
 
 const DB_KEY = 'eselsohr.v1';
 
-const GENRES = ['Roman','Krimi & Thriller','Fantasy','Science-Fiction','Liebesroman','Historischer Roman','Sachbuch','Biografie','Ratgeber','Klassiker','Jugendbuch','Horror','Kurzgeschichten','Lyrik','Sonstiges'];
-const FICTION = new Set(['Roman','Krimi & Thriller','Fantasy','Science-Fiction','Liebesroman','Historischer Roman','Klassiker','Jugendbuch','Horror','Kurzgeschichten']);
+const GENRES = ['Roman','Belletristik','Krimi & Thriller','Fantasy','Science-Fiction','Liebesroman','Historischer Roman','Sachbuch','Biografie','Ratgeber','Klassiker','Jugendbuch','Horror','Kurzgeschichten','Lyrik','Sonstiges'];
+const FICTION = new Set(['Roman','Belletristik','Krimi & Thriller','Fantasy','Science-Fiction','Liebesroman','Historischer Roman','Klassiker','Jugendbuch','Horror','Kurzgeschichten']);
 const LANGS = ['Deutsch','Englisch','Französisch','Spanisch','Italienisch','Andere'];
 const MEDIA = {
   print:  { label:'Physisch',          icon:'book' },
@@ -1707,7 +1707,6 @@ function openBookDetail(id){
   const refl = b.reflection && b.reflection.answers ? `
     <h2 class="section">Dein Leseeindruck</h2>
     <div class="card">
-      ${b.rating?`<div class="row" style="gap:8px;margin-bottom:2px"><span class="chip gold" style="font-size:14px;padding:6px 14px">${icStar()} ${b.rating}/10</span><div class="progress grow" style="margin:0"><i style="width:${b.rating*10}%"></i></div></div><hr class="sep">`:''}
       ${b.reflection.answers.filter(a=>a.a&&a.a.trim()).map(a=>`<div class="reflection-q">${esc(a.q)}</div><div class="reflection-a">${esc(a.a)}</div>`).join('') || '<p class="hint">Keine Antworten notiert.</p>'}
       <button class="btn sm" data-action="edit-reflection" data-id="${b.id}" style="margin-top:6px">${ic('pen')} Antworten bearbeiten</button>
     </div>` : (b.status==='finished' ? `
@@ -1782,6 +1781,13 @@ function openBookDetail(id){
       ${b.notes?`<div class="mrow"><span class="k">Notiz</span><span class="v" style="font-weight:400;text-align:right">${esc(b.notes)}</span></div>`:''}
     </div>
   </div>
+
+  ${b.status==='finished'?`
+  <h2 class="section">Deine Bewertung</h2>
+  <div class="card">
+    <div class="rate10">${Array.from({length:10},(_,i)=>i+1).map(i=>`<button type="button" data-action="rate-book" data-id="${b.id}" data-val="${i}" class="${b.rating&&i<=b.rating?'on':''}" aria-label="${i} von 10">${i}</button>`).join('')}</div>
+    <div class="plabel" id="detail-rate-label" style="margin-top:7px">${b.rating?b.rating+'/10':'Tippe deine Bewertung an'}</div>
+  </div>`:''}
 
   ${others.length?`
   <h2 class="section">Weitere Bände der Reihe</h2>
@@ -2211,6 +2217,15 @@ const ACTIONS = {
       el.textContent = 'Wirklich löschen? Nochmal tippen';
       setTimeout(()=>{ if(ui.deleteArmed===id){ ui.deleteArmed=null; if(el.isConnected) el.textContent='Löschen'; } }, 3500);
     }
+  },
+  'rate-book': el => {
+    const b = getBook(el.dataset.id); if(!b) return;
+    b.rating = Number(el.dataset.val);
+    touch(b); save();
+    const row = el.parentElement;
+    row.querySelectorAll('button').forEach(x => x.classList.toggle('on', Number(x.dataset.val) <= b.rating));
+    const lab = document.getElementById('detail-rate-label'); if(lab) lab.textContent = b.rating + '/10';
+    toast('Bewertung gespeichert: ' + b.rating + '/10');
   },
   'start-finish': el => startFinishFlow(el.dataset.id, false),
   'start-reflection': el => startFinishFlow(el.dataset.id, true, 'final'),
