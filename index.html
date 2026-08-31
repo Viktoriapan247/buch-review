@@ -385,7 +385,8 @@ textarea.f{ min-height:96px; resize:vertical; }
 .shelfitem .cover{ width:100%; }
 .shelfitem .done{ display:flex; gap:5px; margin-top:5px; color:var(--muted2); }
 .shelfitem .done .ic{ width:12px; height:12px; }
-.shelfitem .done .msep{ width:1px; height:10px; background:var(--dash); margin:0 3px; align-self:center; }
+.shelfitem .done .med{ color:var(--muted); margin-right:6px; }
+.shelfitem .done .med .ic{ width:13px; height:13px; }
 .shelfitem .t{ font-size:12.5px; font-weight:600; line-height:1.3; margin-top:7px;
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; color:var(--ink); }
 .shelfitem .y{ font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums; }
@@ -1155,7 +1156,7 @@ function viewShelf(){
       b.facts ? `<span title="10 Fakten angesehen">${ic('cap')}</span>` : '',
       b.community ? `<span title="Community-Stimmen angesehen">${ic('users')}</span>` : '',
     ].filter(Boolean).join('');
-    const done = `<span title="${esc(MEDIA[b.medium]?.label||'Physisch')}">${ic(MEDIA[b.medium]?.icon||'book')}</span>` + (acts ? `<i class="msep"></i>` + acts : '');
+    const done = `<span class="med" title="${esc(MEDIA[b.medium]?.label||'Physisch')}">${ic(MEDIA[b.medium]?.icon||'book')}</span>` + acts;
     return `<button class="shelfitem" data-action="open-book" data-id="${b.id}">
       <div style="position:relative">
         ${coverHTML(b)}
