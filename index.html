@@ -569,7 +569,7 @@ a{ color:var(--rose-text); font-weight:600; }
   .shelfgrid{ grid-template-columns:repeat(5,1fr); gap:24px 18px; }
   .f2{ grid-template-columns:1fr 1fr; }
   #overlays .sheet{
-    inset:4vh 0; margin-inline:auto; width:min(700px, 92vw);
+    inset:4vh 0 4vh 264px; margin-inline:auto; width:min(700px, calc(100vw - 296px));
     border-radius:26px; border:1px solid var(--glass-border);
     box-shadow:var(--shadow); overflow:hidden;
   }
@@ -583,6 +583,20 @@ a{ color:var(--rose-text); font-weight:600; }
   .shelfitem .cover{ transition:transform .15s ease; }
   .shelfitem:hover .cover{ transform:translateY(-3px); }
   .palcard:hover{ border-color:var(--dash); }
+}
+
+/* Medium-Schalter */
+.seg{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.segbtn{
+  appearance:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+  padding:8px 2px; min-height:54px; border-radius:12px; cursor:pointer;
+  border:1px solid var(--glass-border); background:var(--surface2);
+  color:var(--muted); font-size:10.5px; font-weight:600; white-space:nowrap;
+}
+.segbtn .ic{ width:18px; height:18px; }
+.segbtn.on{
+  background:var(--grad-soft), var(--surface); color:var(--ink);
+  box-shadow:inset 0 1px 0 var(--hilite); font-weight:700;
 }
 
 /* Menü-Zeilen (Listen-Buttons im Buchdetail) */
@@ -685,9 +699,9 @@ const GENRES = ['Roman','Belletristik','Krimi & Thriller','Fantasy','Science-Fic
 const FICTION = new Set(['Roman','Belletristik','Krimi & Thriller','Fantasy','Science-Fiction','Liebesroman','Historischer Roman','Klassiker','Jugendbuch','Horror','Kurzgeschichten']);
 const LANGS = ['Deutsch','Englisch','Französisch','Spanisch','Italienisch','Andere'];
 const MEDIA = {
-  print:  { label:'Physisch',          icon:'book' },
-  kindle: { label:'Kindle / E-Book',   icon:'tablet' },
-  audio:  { label:'Audible / Hörbuch', icon:'headphones' },
+  print:  { label:'Physisch',          short:'Physisch', icon:'book' },
+  kindle: { label:'Kindle / E-Book',   short:'E-Book',   icon:'tablet' },
+  audio:  { label:'Audible / Hörbuch', short:'Hörbuch',  icon:'headphones' },
 };
 const ACCENTS = ['apricot','lilac','gold','rose'];
 
@@ -1589,7 +1603,10 @@ function openBookForm(book, preset){
           <select class="f" name="language">${LANGS.map(l=>`<option${(b.language||'Deutsch')===l?' selected':''}>${l}</option>`).join('')}</select>
         </label>
         <label class="f"><span class="lab">Gelesen als</span>
-          <select class="f" name="medium">${Object.entries(MEDIA).map(([k,m])=>`<option value="${k}"${(b.medium||'print')===k?' selected':''}>${m.label}</option>`).join('')}</select>
+          <input type="hidden" name="medium" value="${b.medium||'print'}">
+          <div class="seg" id="mediumseg">
+            ${Object.entries(MEDIA).map(([k,m])=>`<button type="button" class="segbtn ${(b.medium||'print')===k?'on':''}" data-med="${k}" aria-pressed="${(b.medium||'print')===k}">${ic(m.icon)}<span>${m.short}</span></button>`).join('')}
+          </div>
         </label>
       </div>
       <label class="f"><span class="lab">Genre</span>
@@ -1646,6 +1663,12 @@ function openBookForm(book, preset){
   });
 
   const form = el.querySelector('#bookform');
+  const seg = el.querySelector('#mediumseg');
+  if(seg) seg.addEventListener('click', e => {
+    const btn = e.target.closest('[data-med]'); if(!btn) return;
+    form.medium.value = btn.dataset.med;
+    seg.querySelectorAll('.segbtn').forEach(x => { x.classList.toggle('on', x===btn); x.setAttribute('aria-pressed', x===btn); });
+  });
   form.title.addEventListener('change', () => {
     if(aiAvailable() && form.title.value.trim().length > 2 && !form.author.value.trim()) autofillBook(form, true);
   });
