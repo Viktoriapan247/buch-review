@@ -549,8 +549,9 @@ a{ color:var(--rose-text); font-weight:600; }
 
 /* ============ Desktop (ab 900px) ============ */
 @media (min-width: 900px){
-  #app{ max-width:none; margin:0; display:block; padding-left:264px; }
-  main{ max-width:980px; margin:0 auto; padding:36px 44px 70px; }
+  :root{ --cleft:max(264px, calc((100vw - 980px) / 2)); }
+  #app{ max-width:none; margin:0; display:block; }
+  main{ max-width:980px; margin-left:var(--cleft); margin-right:auto; padding:36px 44px 70px; }
   header.app{
     position:fixed; left:0; top:0; width:264px;
     background:transparent; -webkit-backdrop-filter:none; backdrop-filter:none;
@@ -569,7 +570,8 @@ a{ color:var(--rose-text); font-weight:600; }
   .shelfgrid{ grid-template-columns:repeat(5,1fr); gap:24px 18px; }
   .f2{ grid-template-columns:1fr 1fr; }
   #overlays .sheet{
-    inset:4vh 0 4vh 264px; margin-inline:auto; width:min(700px, calc(100vw - 296px));
+    inset:4vh auto 4vh calc(var(--cleft) + (min(980px, 100vw - var(--cleft)) - min(700px, 100vw - 296px)) / 2);
+    width:min(700px, calc(100vw - 296px));
     border-radius:26px; border:1px solid var(--glass-border);
     box-shadow:var(--shadow); overflow:hidden;
   }
