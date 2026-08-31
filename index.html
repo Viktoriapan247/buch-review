@@ -385,6 +385,7 @@ textarea.f{ min-height:96px; resize:vertical; }
 .shelfitem .cover{ width:100%; }
 .shelfitem .done{ display:flex; gap:5px; margin-top:5px; color:var(--muted2); }
 .shelfitem .done .ic{ width:12px; height:12px; }
+.shelfitem .done .msep{ width:1px; height:10px; background:var(--dash); margin:0 3px; align-self:center; }
 .shelfitem .t{ font-size:12.5px; font-weight:600; line-height:1.3; margin-top:7px;
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; color:var(--ink); }
 .shelfitem .y{ font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums; }
@@ -1148,12 +1149,13 @@ function viewShelf(){
   }
   const grid = list.length ? `<div class="shelfgrid">` + list.map(b => {
     const y = readYearOf(b);
-    const done = [
+    const acts = [
       (b.reflection && b.reflection.answers && b.reflection.answers.some(a=>a.a&&a.a.trim())) ? `<span title="Leseeindruck ausgefüllt">${ic('pen')}</span>` : '',
-      b.summary ? `<span title="Erinnerung angesehen">${ic('book')}</span>` : '',
+      b.summary ? `<span title="Erinnerung angesehen">${ic('bulb')}</span>` : '',
       b.facts ? `<span title="10 Fakten angesehen">${ic('cap')}</span>` : '',
       b.community ? `<span title="Community-Stimmen angesehen">${ic('users')}</span>` : '',
     ].filter(Boolean).join('');
+    const done = `<span title="${esc(MEDIA[b.medium]?.label||'Physisch')}">${ic(MEDIA[b.medium]?.icon||'book')}</span>` + (acts ? `<i class="msep"></i>` + acts : '');
     return `<button class="shelfitem" data-action="open-book" data-id="${b.id}">
       <div style="position:relative">
         ${coverHTML(b)}
@@ -1162,7 +1164,7 @@ function viewShelf(){
       </div>
       <div class="t">${esc(b.title)}</div>
       <div class="y">${esc(b.author||'')}</div>
-      ${done?`<div class="done">${done}</div>`:''}
+      <div class="done">${done}</div>
     </button>`;
   }).join('') + `<button class="addtile" data-action="add-book" data-preset="finished" aria-label="Gelesenes Buch nachtragen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>` : `<div class="empty"><p>Kein Buch passt zu deinen Filtern.</p></div>`;
   return controls + `<div class="hint small" style="margin:0 2px 10px">${list.length} ${list.length===1?'Buch':'Bücher'}</div>` + grid;
@@ -1740,7 +1742,7 @@ function openBookDetail(id){
       <p class="hint" style="margin:0 0 12px">Halte deine Eindrücke fest – mit einem persönlichen Fragenkatalog (5–10 Minuten). Lange her? Lass dich vorher kurz erinnern.</p>
       <div class="stack" style="gap:8px">
         <button class="btn menu accent" data-action="start-reflection" data-id="${b.id}">${ic('pen')} Fragenkatalog starten<span class="chev">${ic('chev')}</span></button>
-        <button class="btn menu" data-action="gen-summary" data-id="${b.id}">${ic('book')} Worum ging’s nochmal?<span class="chev">${ic('chev')}</span></button>
+        <button class="btn menu" data-action="gen-summary" data-id="${b.id}">${ic('bulb')} Worum ging’s nochmal?<span class="chev">${ic('chev')}</span></button>
       </div>
     </div>` : '');
 
@@ -1763,7 +1765,7 @@ function openBookDetail(id){
   const finishedExtras = b.status==='finished' ? `
     <h2 class="section">Nach dem Buch</h2>
     <div class="stack" style="gap:8px">
-      <button class="btn menu" data-action="gen-summary" data-id="${b.id}">${ic('book')} Worum ging’s? Kurze Erinnerung<span class="chev">${ic('chev')}</span></button>
+      <button class="btn menu" data-action="gen-summary" data-id="${b.id}">${ic('bulb')} Worum ging’s? Kurze Erinnerung<span class="chev">${ic('chev')}</span></button>
       <button class="btn menu" data-action="gen-facts" data-id="${b.id}">${ic('cap')} 10 Fakten zu Buch & Autor·in<span class="chev">${ic('chev')}</span></button>
       <button class="btn menu" data-action="gen-community" data-id="${b.id}">${ic('users')} Stimmen aus der Lese-Community<span class="chev">${ic('chev')}</span></button>
     </div>` : '';
