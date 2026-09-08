@@ -3,7 +3,8 @@
 Eine private Lese-App als eine einzige HTML-Datei (`index.html`) – mobile-first,
 ab 900 px Fensterbreite mit Desktop-Layout (Seitenleiste, breites Regal-Raster,
 zentrierte Dialoge). Icons als minimalistische Linien-SVGs, keine Emojis.
-Kein Konto, kein Tracking – alle Daten bleiben im Browser des Geräts (localStorage).
+Kein Konto, kein Tracking – alle Daten bleiben im Browser des Geräts (IndexedDB,
+mit schlankem localStorage-Spiegel als Fallback; kein 5-MB-Limit mehr).
 
 ## Funktionen
 
@@ -64,6 +65,9 @@ Gemini-API erlaubt Aufrufe direkt aus dem Browser (CORS).
 ## Technik
 
 - Eine Datei, kein Framework, keine externen Abhängigkeiten (System-Schriften: SF/Helvetica)
-- Datenmodell: `{ books: [...], settings: {...}, recs: [...] }` in `localStorage` (`eselsohr.v1`)
+- Datenmodell: `{ books: [...], settings: {...}, recs: [...] }` in IndexedDB (`novelle-db`),
+  Bestandsdaten werden beim ersten Start automatisch aus `localStorage` (`eselsohr.v1`) migriert;
+  dort verbleibt ein Cover-freier Spiegel als Fallback. Cover werden beim Upload auf ~380 px
+  verkleinert, große Bestands-Cover einmalig nachverdichtet
 - Design nach Apple-HIG-Prinzipien: Bottom-Tab-Navigation, Touch-Targets ≥ 44 pt,
   Kontraste ≥ 4.5:1, Dynamic-Type-freundliche Skala, Safe-Area-Insets, Light/Dark Mode

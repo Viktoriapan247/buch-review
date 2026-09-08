@@ -732,11 +732,83 @@ function load(){
   }catch(e){}
   return { books: [], settings: { ratingScale: 10 }, recs: [] };
 }
+let idb = null;
+function idbOpen(){
+  return new Promise((res, rej) => {
+    const r = indexedDB.open('novelle-db', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+}
+function idbGet(db, key){
+  return new Promise((res, rej) => {
+    const t = db.transaction('kv', 'readonly').objectStore('kv').get(key);
+    t.onsuccess = () => res(t.result);
+    t.onerror = () => rej(t.error);
+  });
+}
+function idbSet(db, key, val){
+  return new Promise((res, rej) => {
+    const t = db.transaction('kv', 'readwrite');
+    t.objectStore('kv').put(val, key);
+    t.oncomplete = () => res();
+    t.onerror = () => rej(t.error);
+  });
+}
+/* Schlanke Kopie (ohne Cover) im localStorage – als Notfall-Fallback, sprengt kein Limit */
+function slimLocalMirror(){
+  try{
+    const slim = { ...state, books: state.books.map(b => b.cover ? { ...b, cover: null, _coverInIdb: true } : b) };
+    localStorage.setItem(DB_KEY, JSON.stringify(slim));
+  }catch(e){ try{ localStorage.removeItem(DB_KEY); }catch(e2){} }
+}
+async function initStorage(){
+  try{
+    idb = await idbOpen();
+    const stored = await idbGet(idb, 'state');
+    if(stored && Array.isArray(stored.books)){
+      state = migrateState(stored);
+    } else {
+      await idbSet(idb, 'state', state); // einmalige Übernahme aus localStorage
+    }
+    slimLocalMirror();
+  }catch(e){ idb = null; }
+}
 function persist(){
+  if(idb){
+    idbSet(idb, 'state', state).catch(() => toast('Speichern fehlgeschlagen – bitte exportiere ein Backup.'));
+    slimLocalMirror();
+    return;
+  }
   try{ localStorage.setItem(DB_KEY, JSON.stringify(state)); }
   catch(e){ toast('Speichern fehlgeschlagen – Speicher voll? Exportiere ein Backup.'); }
 }
 function save(){ persist(); scheduleSync(); }
+/* Bestehende große Cover einmalig nachverkleinern */
+function shrinkDataUrl(src, max, q){
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      res(c.toDataURL('image/jpeg', q));
+    };
+    img.onerror = rej;
+    img.src = src;
+  });
+}
+async function recompressCovers(){
+  if(state.settings.coverV2) return;
+  const big = state.books.filter(b => b.cover && b.cover.length > 60000);
+  for(const b of big){
+    try{ b.cover = await shrinkDataUrl(b.cover, 380, 0.75); touch(b); }catch(e){}
+  }
+  state.settings.coverV2 = true;
+  if(big.length){ save(); renderApp(); } else persist();
+}
 function touch(b){ if(b) b.updatedAt = Date.now(); }
 
 /* ---------- Helfer ---------- */
@@ -815,12 +887,12 @@ function resizeImage(file, cb){
   reader.onload = () => {
     const img = new Image();
     img.onload = () => {
-      const MAX = 440;
+      const MAX = 380;
       const scale = Math.min(1, MAX / Math.max(img.width, img.height));
       const c = document.createElement('canvas');
       c.width = Math.round(img.width*scale); c.height = Math.round(img.height*scale);
       c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-      cb(c.toDataURL('image/jpeg', 0.82));
+      cb(c.toDataURL('image/jpeg', 0.78));
     };
     img.onerror = () => toast('Bild konnte nicht gelesen werden.');
     img.src = reader.result;
@@ -2321,7 +2393,12 @@ function applyPalette(){
 /* Start */
 applyPalette();
 renderApp();
-if(syncConf()) runSync(false);
+initStorage().then(() => {
+  applyPalette();
+  renderApp();
+  if(syncConf()) runSync(false);
+  recompressCovers();
+});
 setTimeout(() => {
   const sp = $('#splash');
   if(sp){ sp.style.opacity = '0'; setTimeout(() => sp.remove(), 260); }
