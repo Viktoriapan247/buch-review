@@ -1590,19 +1590,29 @@ async function runSync(manual=false){
     if(manual) toast('Bibliothek synchronisiert');
     if(!document.querySelector('#overlays .sheet')) renderApp();
   }catch(e){
-    setSyncStatus('error');
-    if(manual){
-      if(e && e.name === 'OperationError') toast('Der Sync-Code passt nicht zu den vorhandenen Cloud-Daten.');
-      else toast('Cloud-Sync gerade nicht möglich – Zugangsdaten prüfen oder später erneut versuchen.');
-    }
+    const why = syncErrorText(e);
+    setSyncStatus('error', why);
+    if(manual) toast(why);
   }
   _syncBusy = false;
 }
-function setSyncStatus(st){
+function syncErrorText(e){
+  if(e && e.name === 'OperationError') return 'Sync-Code passt nicht zu den vorhandenen Cloud-Daten – auf allen Geräten denselben Code verwenden.';
+  const m = /sync-(?:pull|push)-(\d+)/.exec((e && e.message) || '');
+  if(m){
+    const s = +m[1];
+    if(s === 401 || s === 403) return 'Zugangsdaten ungültig – bitte den anon-key aus deinem Supabase-Projekt neu eintragen.';
+    if(s === 404) return 'Tabelle novelle_sync nicht gefunden – das SQL-Snippet aus der Anleitung einmal in Supabase ausführen.';
+    if(s === 540 || s === 503) return 'Dein Supabase-Projekt ist pausiert (passiert im Gratis-Plan nach längerer Pause) – auf supabase.com anmelden und „Restore project“ klicken.';
+    return 'Datenbank meldet Fehler ' + s + ' – später erneut versuchen.';
+  }
+  return 'Datenbank nicht erreichbar – kein Internet, oder dein Supabase-Projekt ist pausiert (dann auf supabase.com „Restore project“ klicken).';
+}
+function setSyncStatus(st, detail){
   const el = document.getElementById('syncstatus'); if(!el) return;
   el.textContent = st==='busy' ? 'synchronisiere…'
     : (st==='ok' ? 'zuletzt '+new Date(state.settings.lastSync||Date.now()).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})+' Uhr'
-    : 'Verbindungsproblem');
+    : (detail || 'Verbindungsproblem'));
 }
 function scheduleSync(){ if(!syncConf()) return; clearTimeout(_syncTimer); _syncTimer = setTimeout(() => runSync(false), 2500); }
 function makeSyncCode(){
