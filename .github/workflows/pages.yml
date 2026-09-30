@@ -2,7 +2,7 @@ name: Novelle auf GitHub Pages veröffentlichen
 
 on:
   push:
-    branches: [claude/digital-bookshelf-app-a1b7d1]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
