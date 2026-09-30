@@ -771,6 +771,9 @@ async function initStorage(){
       state = migrateState(stored);
     } else {
       await idbSet(idb, 'state', state); // einmalige Übernahme aus localStorage
+      if(state.books.some(b => b && b._coverInIdb && !b.cover)){
+        setTimeout(() => toast('Hinweis: Der Browser hat lokale Cover-Daten entfernt. Über Cloud-Sync oder ein Backup mit Covern kommen sie zurück.'), 900);
+      }
     }
     slimLocalMirror();
   }catch(e){ idb = null; }
@@ -1475,6 +1478,12 @@ function bindMore(){
       try{
         const data = JSON.parse(r.result);
         if(!data || !Array.isArray(data.books)) throw new Error('format');
+        // Cover-Schutz: fehlt einem Buch im Backup das Cover, bleibt das vorhandene erhalten
+        const keep = new Map(state.books.filter(b => b && b.id && b.cover).map(b => [b.id, b.cover]));
+        data.books = data.books.map(b => {
+          if(b && b.id && !b.cover && keep.has(b.id)){ const nb = { ...b, cover: keep.get(b.id) }; delete nb._coverInIdb; return nb; }
+          return b;
+        });
         state = migrateState(data); save(); renderApp(); toast(`Backup geladen: ${data.books.length} Bücher`);
       }catch(e){ toast('Das ist kein gültiges Novelle-Backup.'); }
     };
@@ -1552,10 +1561,15 @@ async function syncPush(c, id, lib){
 }
 function mergeLibraries(local, remote){
   const map = new Map();
+  const covers = new Map(); // Cover-Schutz: ein vorhandenes Cover geht nie durch die Zusammenführung verloren
   for(const b of [...(remote.books||[]), ...(local.books||[])]){
     if(!b || !b.id) continue;
+    if(b.cover && !covers.has(b.id)) covers.set(b.id, b.cover);
     const prev = map.get(b.id);
     if(!prev || (b.updatedAt||0) >= (prev.updatedAt||0)) map.set(b.id, b);
+  }
+  for(const [bid, b] of map){
+    if(!b.cover && covers.has(bid)){ const nb = { ...b, cover: covers.get(bid) }; delete nb._coverInIdb; map.set(bid, nb); }
   }
   const tombs = new Map();
   for(const t of [...(remote.deleted||[]), ...(local.deleted||[])]){

@@ -22,7 +22,7 @@ mit schlankem localStorage-Spiegel als Fallback; kein 5-MB-Limit mehr).
 - **Wunschliste / Leseliste** und **Empfehlungen** auf Basis des eigenen Regals
 - **Statistik**: Bücher pro Jahr, Genres, Medien
 - **Backup exportieren / importieren** (JSON) – auch als Brücke zwischen Geräten
-- **Cloud-Sync (optional, kostenlos)**: gleiche Bibliothek auf allen Geräten über eine eigene Supabase-Datenbank (Gratis-Stufe). Ende-zu-Ende-verschlüsselt (AES-GCM, Schlüssel aus dem Sync-Code abgeleitet) – weder Supabase noch Dritte können die Daten lesen. Einrichtung direkt in der App unter Mehr → Cloud-Sync (Anleitung inklusive SQL-Snippet eingebaut); Abgleich beim Öffnen und nach jeder Änderung, Zusammenführung pro Buch mit Lösch-Tombstones
+- **Cloud-Sync (optional, kostenlos)**: gleiche Bibliothek auf allen Geräten über eine eigene Supabase-Datenbank (Gratis-Stufe). Ende-zu-Ende-verschlüsselt (AES-GCM, Schlüssel aus dem Sync-Code abgeleitet) – weder Supabase noch Dritte können die Daten lesen. Einrichtung direkt in der App unter Mehr → Cloud-Sync (Anleitung inklusive SQL-Snippet eingebaut); Abgleich beim Öffnen und nach jeder Änderung, Zusammenführung pro Buch mit Lösch-Tombstones und **Cover-Schutz** (ein vorhandenes Cover wird beim Sync oder Backup-Import nie durch „kein Cover" ersetzt); bei Verbindungsfehlern nennt die Statuszeile die konkrete Ursache (pausiertes Supabase-Projekt, ungültiger Schlüssel, fehlende Tabelle, falscher Sync-Code)
 - **Helles und dunkles Design** mit zwei wählbaren Farbwelten: „Aura“ (Pink, Orange, Lila, Gelb) und „Nacht“ (Schwarz & Navy), jeweils mit Frosted-Glass-Oberflächen im iOS-Stil und passendem Logo
 
 ## KI-Funktionen (optional)
