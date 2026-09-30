@@ -52,7 +52,10 @@ Gemini-API erlaubt Aufrufe direkt aus dem Browser (CORS).
 
 1. `index.html` in einem Browser öffnen – fertig. Es gibt keinen Build-Schritt.
 2. Als „App“ auf dem Handy: Seite im Browser öffnen → „Zum Home-Bildschirm hinzufügen“.
-3. Alternativ über GitHub Pages o. Ä. hosten.
+3. Alternativ über GitHub Pages o. Ä. hosten. Für dieses Repository liegt ein
+   fertiger Workflow bei (`.github/workflows/pages.yml`): Er veröffentlicht die App
+   bei jedem Push auf den Entwicklungs-Branch automatisch auf GitHub Pages
+   (Repo muss dafür öffentlich sein bzw. einen Plan mit privaten Pages haben).
 
 ## Roadmap / Vormerkungen
 
