@@ -756,6 +756,33 @@ function idbSet(db, key, val){
     t.onerror = () => rej(t.error);
   });
 }
+function idbKeys(db){
+  return new Promise((res, rej) => {
+    const t = db.transaction('kv', 'readonly').objectStore('kv').getAllKeys();
+    t.onsuccess = () => res(t.result || []);
+    t.onerror = () => rej(t.error);
+  });
+}
+function idbDel(db, key){
+  return new Promise((res, rej) => {
+    const t = db.transaction('kv', 'readwrite');
+    t.objectStore('kv').delete(key);
+    t.oncomplete = () => res();
+    t.onerror = () => rej(t.error);
+  });
+}
+/* Automatische Sicherung: einmal täglich ein lokaler Schnappschuss (die letzten 7 bleiben) */
+async function localSnapshot(){
+  if(!idb || !state.books.length) return;
+  const day = todayISO();
+  if(state.settings.lastLocalSnapDay === day) return;
+  try{
+    await idbSet(idb, 'snap:'+day, JSON.parse(JSON.stringify({ books: state.books, deleted: state.deleted||[], recs: state.recs||[] })));
+    state.settings.lastLocalSnapDay = day; persist();
+    const snaps = (await idbKeys(idb)).filter(k => typeof k === 'string' && k.indexOf('snap:') === 0).sort().reverse();
+    for(const k of snaps.slice(7)) await idbDel(idb, k);
+  }catch(e){}
+}
 /* Schlanke Kopie (ohne Cover) im localStorage – als Notfall-Fallback, sprengt kein Limit */
 function slimLocalMirror(){
   try{
@@ -1457,8 +1484,9 @@ create policy "novelle_rw" on novelle_sync
 
   <h2 class="section">Datensicherung</h2>
   <div class="card" style="margin-bottom:14px">
-    <p class="hint small" style="margin:0 0 10px">Deine Bibliothek liegt nur auf diesem Gerät. Sichere sie regelmäßig als Datei – so kannst du sie auch auf ein anderes Gerät mitnehmen.</p>
+    <p class="hint small" style="margin:0 0 10px">Novelle sichert automatisch: einmal täglich ein Schnappschuss auf diesem Gerät (7 Tage rückwirkend)${syncConf()?' und zusätzlich verschlüsselt in deiner Cloud (10 Tage rückwirkend)':''}. Über „Sicherungen“ kannst du jederzeit zu einem früheren Stand zurückspringen. Ein Datei-Export lohnt sich trotzdem ab und zu – als Kopie außerhalb des Browsers.</p>
     <div class="row" style="flex-wrap:wrap">
+      <button class="btn" data-action="show-snapshots">Sicherungen</button>
       <button class="btn" data-action="export-backup">Backup exportieren</button>
       <label class="btn" style="cursor:pointer">Backup importieren<input id="importfile" type="file" accept="application/json,.json" style="display:none"></label>
     </div>
@@ -1506,6 +1534,79 @@ async function exportBackup(){
     setTimeout(()=>URL.revokeObjectURL(url), 4000);
     toast('Backup wird heruntergeladen');
   }catch(e){ toast('Export hier nicht möglich.'); }
+}
+
+/* ---------- Automatische Sicherungen ansehen & wiederherstellen ---------- */
+function snapDayLabel(day){
+  try{ return new Date(day+'T12:00:00').toLocaleDateString('de-DE', { weekday:'short', day:'numeric', month:'long' }); }
+  catch(e){ return day; }
+}
+async function openSnapshots(){
+  const el = openOverlay('Sicherungen', '<p class="hint small" style="margin:0">Lade Sicherungen…</p>');
+  const rows = [];
+  try{
+    if(idb){
+      const keys = (await idbKeys(idb)).filter(k => typeof k === 'string' && k.indexOf('snap:') === 0);
+      for(const k of keys) rows.push({ key: k, day: k.slice(5), src: 'local' });
+    }
+  }catch(e){}
+  const c = syncConf();
+  if(c){
+    try{
+      const id = await sha256hex('novelle:'+c.code);
+      const res = await fetch(syncBase(c)+'?id=like.'+id+':s:*&select=id&order=id.desc', { headers: syncHeaders(c) });
+      if(res.ok){
+        for(const r of await res.json()) rows.push({ key: r.id, day: r.id.slice(id.length+3), src: 'cloud' });
+      }
+    }catch(e){}
+  }
+  rows.sort((a,b) => b.day.localeCompare(a.day) || a.src.localeCompare(b.src));
+  const body = el.querySelector('.sbody .inner');
+  if(!rows.length){
+    body.innerHTML = '<p class="hint small" style="margin:0">Noch keine automatischen Sicherungen vorhanden. Der erste Schnappschuss entsteht beim nächsten Öffnen der App' + (c ? ' bzw. beim nächsten Sync' : '') + ' – ab dann täglich.</p>';
+    return;
+  }
+  body.innerHTML = `
+    <p class="hint small" style="margin:0 0 12px">Ein Tipp auf „Wiederherstellen“ bringt deine Bibliothek auf den Stand des jeweiligen Tages. Bücher, die erst danach dazukamen, bleiben erhalten; Cover werden nie überschrieben.</p>
+    <div class="card" style="padding:6px 14px">
+      ${rows.map(r => `
+        <div class="row" style="align-items:center; padding:9px 0; gap:10px">
+          <span style="flex:1; font-size:14px"><strong>${esc(snapDayLabel(r.day))}</strong><br><span class="hint small">${r.src==='cloud' ? ic('cloud')+' Cloud' : 'auf diesem Gerät'}</span></span>
+          <button class="btn sm" data-action="restore-snap" data-src="${r.src}" data-key="${esc(r.key)}">Wiederherstellen</button>
+        </div>`).join('')}
+    </div>`;
+}
+async function restoreSnapshot(src, key, btn){
+  if(btn && btn.dataset.armed !== '1'){
+    btn.dataset.armed = '1'; btn.classList.add('danger'); btn.textContent = 'Wirklich?';
+    setTimeout(() => { if(btn.isConnected){ btn.dataset.armed=''; btn.classList.remove('danger'); btn.textContent='Wiederherstellen'; } }, 4000);
+    return;
+  }
+  try{
+    let lib = null;
+    if(src === 'local'){
+      lib = idb ? await idbGet(idb, key) : null;
+    } else {
+      const c = syncConf(); if(!c){ toast('Cloud-Sync ist nicht verbunden.'); return; }
+      const res = await fetch(syncBase(c)+'?id=eq.'+encodeURIComponent(key)+'&select=payload', { headers: syncHeaders(c) });
+      if(!res.ok) throw new Error('sync-pull-'+res.status);
+      const rowsj = await res.json();
+      if(rowsj.length) lib = await syncDecrypt(rowsj[0].payload, c.code);
+    }
+    if(!lib || !Array.isArray(lib.books)){ toast('Diese Sicherung konnte nicht geladen werden.'); return; }
+    const now = Date.now();
+    const covers = new Map(state.books.filter(b => b && b.id && b.cover).map(b => [b.id, b.cover]));
+    state.books = lib.books.map(b => {
+      const nb = { ...b, updatedAt: now };
+      if(!nb.cover && covers.has(nb.id)) nb.cover = covers.get(nb.id);
+      delete nb._coverInIdb;
+      return nb;
+    });
+    state.deleted = [];
+    if(lib.recs && lib.recs.length) state.recs = lib.recs;
+    save(); closeAllOverlays();
+    toast('Sicherung wiederhergestellt – '+state.books.length+' Bücher');
+  }catch(e){ toast('Wiederherstellen fehlgeschlagen: '+syncErrorText(e)); }
 }
 
 /* =====================================================================
@@ -1559,6 +1660,27 @@ async function syncPush(c, id, lib){
   });
   if(!res.ok) throw new Error('sync-push-'+res.status);
 }
+/* Automatische Sicherung: einmal täglich ein verschlüsselter Schnappschuss in der Cloud (die letzten 10 bleiben) */
+async function cloudSnapshot(c, id, lib){
+  const day = todayISO();
+  if(state.settings.lastSnapDay === day) return;
+  const payload = await syncEncrypt(lib, c.code);
+  const res = await fetch(syncBase(c), {
+    method: 'POST',
+    headers: { ...syncHeaders(c), 'Prefer': 'resolution=merge-duplicates' },
+    body: JSON.stringify([{ id: id+':s:'+day, payload, updated_at: new Date().toISOString() }]),
+  });
+  if(!res.ok) return;
+  state.settings.lastSnapDay = day; persist();
+  try{
+    const list = await fetch(syncBase(c)+'?id=like.'+id+':s:*&select=id&order=id.desc', { headers: syncHeaders(c) });
+    if(list.ok){
+      const rows = await list.json();
+      const old = rows.slice(10).map(r => '"'+r.id+'"');
+      if(old.length) await fetch(syncBase(c)+'?id=in.('+encodeURIComponent(old.join(','))+')', { method: 'DELETE', headers: syncHeaders(c) });
+    }
+  }catch(e){}
+}
 function mergeLibraries(local, remote){
   const map = new Map();
   const covers = new Map(); // Cover-Schutz: ein vorhandenes Cover geht nie durch die Zusammenführung verloren
@@ -1600,6 +1722,7 @@ async function runSync(manual=false){
     state.settings.lastSync = Date.now();
     persist();
     await syncPush(c, id, merged);
+    cloudSnapshot(c, id, merged).catch(() => {});
     setSyncStatus('ok');
     if(manual) toast('Bibliothek synchronisiert');
     if(!document.querySelector('#overlays .sheet')) renderApp();
@@ -2377,6 +2500,8 @@ const ACTIONS = {
     save(); renderApp(); toast(state.settings.apiKey ? 'KI verbunden' : 'Gespeichert – Begleiter-Modus aktiv');
   },
   'export-backup': () => exportBackup(),
+  'show-snapshots': () => openSnapshots(),
+  'restore-snap': el => restoreSnapshot(el.dataset.src, el.dataset.key, el),
   'sync-now': () => runSync(true),
   'sync-off': () => { delete state.settings.sync; persist(); renderApp(); toast('Cloud-Sync getrennt – deine Daten bleiben lokal erhalten.'); },
   'sync-gencode': () => { const el = $('#sync-code'); if(el) el.value = makeSyncCode(); },
@@ -2420,6 +2545,7 @@ renderApp();
 initStorage().then(() => {
   applyPalette();
   renderApp();
+  localSnapshot();
   if(syncConf()) runSync(false);
   recompressCovers();
 });
