@@ -2101,6 +2101,13 @@ async function startFinishFlow(id, reflectionOnly=false, mode='finish'){
   const stored = mode==='mid' ? b.midReflection : b.reflection;
   const editing = !!(reflectionOnly && stored && stored.answers && stored.answers.length);
   const title = mode==='mid' ? 'Zwischen-Eindruck' : (reflectionOnly ? 'Dein Leseeindruck' : 'Buch beenden');
+  if(!reflectionOnly){
+    // Beenden: sofort das Datum/Bewertungs-Fenster zeigen – die Fragen werden erst geladen, wenn sie gebraucht werden
+    const el = openOverlay(title, `<div id="flowbody"></div>`);
+    const flow = { step:0, qs:null, answers:null, rating: b.rating||0, endDate: b.endDate||todayISO(), reflectionOnly:false, ai:false, mode };
+    renderFlow(el, b, flow);
+    return;
+  }
   const el = openOverlay(title, `<div id="flowbody"><div class="empty">${glyphBadge()}<p>Dein persönlicher Fragenkatalog wird vorbereitet …</p></div></div>`);
   let qs, ai = false, answers;
   if(editing){
@@ -2117,12 +2124,13 @@ async function startFinishFlow(id, reflectionOnly=false, mode='finish'){
 }
 function renderFlow(el, b, flow){
   const body = el.querySelector('#flowbody');
-  const total = flow.qs.length + (flow.reflectionOnly ? 1 : 2); // meta + fragen + abschluss
+  const qCount = flow.qs ? flow.qs.length : 7;
+  const total = qCount + (flow.reflectionOnly ? 1 : 2); // meta + fragen + abschluss
   const dots = `<div class="flowdots">${Array.from({length:total},(_,i)=>`<i class="${i<=flow.step?'on':''}"></i>`).join('')}</div>`;
 
   const metaStep = !flow.reflectionOnly && flow.step===0;
   const qIndex = flow.step - (flow.reflectionOnly ? 0 : 1);
-  const isSummary = qIndex >= flow.qs.length;
+  const isSummary = flow.qs && qIndex >= flow.qs.length;
 
   if(metaStep){
     body.innerHTML = `${dots}
@@ -2134,17 +2142,45 @@ function renderFlow(el, b, flow){
       <div class="rate10" id="flow-stars">${Array.from({length:10},(_,i)=>i+1).map(i=>`<button type="button" data-val="${i}" class="${i<=flow.rating?'on':''}" aria-label="${i} von 10">${i}</button>`).join('')}</div>
       <div class="plabel" id="rate-label" style="margin-top:7px">${flow.rating?flow.rating+'/10':'Tippe deine Bewertung an'}</div>
     </div>
-    <p class="hint small">Gleich danach: dein persönlicher Fragenkatalog (${flow.qs.length} Fragen, ca. 5–10 Minuten)${flow.ai?' – von der KI auf dieses Buch zugeschnitten':''}. Du kannst jede Frage auch überspringen.</p>
-    <button class="btn primary block" id="flow-next-btn" style="margin-top:10px">Weiter zu den Fragen</button>`;
+    <p class="hint small">Danach folgt dein persönlicher Fragenkatalog (${flow.qs?flow.qs.length+' Fragen, ':''}ca. 5–10 Minuten)${flow.ai?' – von der KI auf dieses Buch zugeschnitten':''}. Keine Zeit oder Lust? Du kannst ihn auch jederzeit später im Buch beantworten.</p>
+    <button class="btn primary block" id="flow-next-btn" style="margin-top:10px">Weiter zu den Fragen</button>
+    <button class="btn block" id="flow-skip-btn" style="margin-top:8px">Jetzt beenden – Fragen später</button>`;
     body.querySelector('#flow-stars').addEventListener('click', e => {
       const btn = e.target.closest('button[data-val]'); if(!btn) return;
       flow.rating = Number(btn.dataset.val);
       body.querySelectorAll('#flow-stars button').forEach(s => s.classList.toggle('on', Number(s.dataset.val)<=flow.rating));
       const lab = body.querySelector('#rate-label'); if(lab) lab.textContent = flow.rating+'/10';
     });
-    body.querySelector('#flow-next-btn').addEventListener('click', () => {
-      flow.endDate = body.querySelector('#flow-end').value || todayISO();
+    const readMeta = () => { flow.endDate = body.querySelector('#flow-end').value || todayISO(); };
+    body.querySelector('#flow-next-btn').addEventListener('click', async () => {
+      readMeta();
+      if(!flow.qs){
+        body.innerHTML = `<div class="empty">${glyphBadge()}<p>Dein persönlicher Fragenkatalog wird vorbereitet …</p></div>`;
+        const r = await personalizedQuestions(b, 'final');
+        if(!el.isConnected) return;
+        flow.qs = r.qs; flow.ai = r.ai;
+        flow.answers = flow.qs.map(q => ({ q, a: '' }));
+      }
       flow.step++; renderFlow(el, b, flow);
+    });
+    body.querySelector('#flow-skip-btn').addEventListener('click', () => {
+      readMeta();
+      b.status = 'finished';
+      b.endDate = flow.endDate;
+      b.rating = flow.rating || b.rating || null;
+      touch(b); save();
+      body.innerHTML = `
+      <div class="empty" style="padding-top:20px">
+        ${glyphBadge()}
+        <h3>„${esc(b.title)}“ steht jetzt in deinem Regal</h3>
+        <p>Den Fragenkatalog kannst du jederzeit nachholen: im Buch unter „Dein Leseeindruck“ → „Fragenkatalog starten“.</p>
+      </div>
+      <div class="stack">
+        <button class="btn menu" data-action="gen-facts" data-id="${b.id}">${ic('cap')} 10 Fakten zu Buch & Autor·in<span class="chev">${ic('chev')}</span></button>
+        <button class="btn menu" data-action="gen-community" data-id="${b.id}">${ic('users')} Stimmen aus der Lese-Community<span class="chev">${ic('chev')}</span></button>
+        <button class="btn primary block" id="flow-done-btn">Fertig</button>
+      </div>`;
+      body.querySelector('#flow-done-btn').addEventListener('click', () => { closeAllOverlays(); ui.tab='shelf'; renderApp(); });
     });
     return;
   }

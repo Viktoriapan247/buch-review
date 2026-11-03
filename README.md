@@ -12,7 +12,7 @@ mit schlankem localStorage-Spiegel als Fallback; kein 5-MB-Limit mehr).
 - **Bereits gelesene Bücher nachtragen** – nur mit dem Lesejahr, wenn genaue Daten nicht mehr bekannt sind
 - **Mehrere Bücher parallel lesen** – Tab „Aktuell“ mit Lesefortschritt (Seite / Kapitel / Prozent)
 - **Buchreihen verbinden** – Reihenname + Bandnummer, weitere Bände werden im Buchdetail verlinkt
-- **Beenden-Flow**: Enddatum, Bewertung auf einer 1–10-Skala und ein **personalisierter Reflexions-Fragenkatalog** (5–10 Minuten), abgestimmt auf Genre, Medium, Reihe und Lesedauer – inkl. Fragen zu Erzählperspektive und dem, was man für die Zukunft mitnimmt
+- **Beenden-Flow**: Enddatum, Bewertung auf einer 1–10-Skala und ein **personalisierter Reflexions-Fragenkatalog** (5–10 Minuten), abgestimmt auf Genre, Medium, Reihe und Lesedauer – inkl. Fragen zu Erzählperspektive und dem, was man für die Zukunft mitnimmt. Wer gerade keine Zeit hat: **„Jetzt beenden – Fragen später"** markiert das Buch sofort als gelesen; der Fragenkatalog lässt sich jederzeit im Buch unter „Dein Leseeindruck" nachholen
 - **Buch-Chat mit Spoilerschutz**: Gespräch über das Buch schon während des Lesens; die Grenze ist der eingetragene Fortschritt
 - **10 Fakten zu Buch & Autor·in** und **Stimmen aus der Lese-Community** nach dem Beenden
 - **„Worum ging’s?“ (KI-Erinnerung)**: kurze Zusammenfassung zum Auffrischen – ideal für nachgetragene Bücher vor dem Fragenkatalog
